@@ -1,0 +1,4 @@
+# TAHSILDAR - Land Records & Services (SIH26014)
+# Production Python Dependencies
+# Built using Python standard library (http.server, json, urllib, socketserver)
+# No external pip wheels required for ultra-fast Vercel serverless cold starts.

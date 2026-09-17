@@ -1,0 +1,505 @@
+/* =========================================================
+   LANDSTACK PRIME (v2.0) - DESIGN SYSTEM & CORE STYLES
+   Modern Gov-Tech Glassmorphism & Executive UI (SIH26014)
+   ========================================================= */
+
+:root {
+    /* Color Palette */
+    --bg-primary: #0a1120;
+    --bg-secondary: #0f172a;
+    --bg-surface: rgba(15, 23, 42, 0.85);
+    --bg-surface-elevated: rgba(30, 41, 59, 0.9);
+    --bg-glass: rgba(15, 23, 42, 0.75);
+    --border-glass: rgba(255, 255, 255, 0.12);
+    --border-accent: rgba(59, 130, 246, 0.4);
+
+    --primary-blue: #2563eb;
+    --primary-blue-hover: #1d4ed8;
+    --navy-gov: #0f2b5c;
+    --emerald-green: #059669;
+    --emerald-hover: #047857;
+    --amber-warning: #d97706;
+    --red-danger: #dc2626;
+    --purple-ai: #7c3aed;
+    --gold-accent: #f59e0b;
+
+    /* Text Colors */
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --text-inverse: #0f172a;
+
+    /* Shadows & Glows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --glow-blue: 0 0 20px rgba(37, 99, 235, 0.35);
+    --glow-emerald: 0 0 20px rgba(5, 150, 105, 0.35);
+    --glow-ai: 0 0 25px rgba(124, 58, 237, 0.4);
+
+    /* Fonts */
+    --font-heading: 'Outfit', 'Inter', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================
+   1. TOP INSTITUTIONAL HEADER & COMMAND DOCK
+   ========================================================= */
+.prime-top-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(10, 17, 32, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 2000;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.inst-emblem-badge {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #1e3a8a, #0f2b5c);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: #60a5fa;
+    box-shadow: var(--shadow-sm);
+}
+
+.brand-titles h1 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-dpi-prime {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: #ffffff;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.brand-titles p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+/* Center Pitchdeck Trigger & Stage Highlights */
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-judge-pitch {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--glow-ai);
+    transition: all 0.25s ease;
+}
+
+.btn-judge-pitch:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.6);
+}
+
+.btn-judge-pitch i {
+    color: #fcd34d;
+    animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.badge-sih-eval {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #93c5fd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Header Right: Role Switcher & User State */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.role-switcher-bar {
+    display: flex;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 3px;
+    border-radius: 10px;
+    border: 1px solid var(--border-glass);
+}
+
+.role-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.role-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.role-btn.active {
+    background: var(--primary-blue);
+    color: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.role-btn.role-tahsildar.active {
+    background: linear-gradient(135deg, #0f2b5c, #1e40af);
+}
+
+.role-btn.role-collector.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+/* =========================================================
+   2. VERTICAL ACTION DOCK (LEFT OVERLAY)
+   ========================================================= */
+.prime-vertical-dock {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1500;
+}
+
+.dock-pill-btn {
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    color: var(--text-main);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.dock-pill-btn:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: var(--border-accent);
+    transform: translateX(3px);
+}
+
+.dock-pill-btn i {
+    font-size: 0.95rem;
+}
+
+.dock-pill-btn.btn-bhu-ai {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(79, 70, 229, 0.35));
+    border-color: rgba(124, 58, 237, 0.5);
+    box-shadow: var(--glow-ai);
+}
+
+.dock-pill-btn.btn-bhu-ai:hover {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.6), rgba(79, 70, 229, 0.6));
+}
+
+.dock-badge-count {
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+}
+
+/* =========================================================
+   3. GLOBAL MODAL CONTAINER & BACKDROP
+   ========================================================= */
+.prime-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 17, 32, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.prime-modal-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 780px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header-bar {
+    padding: 16px 20px;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-header-title h3 {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.modal-header-title p {
+    font-size: 0.73rem;
+    color: var(--text-muted);
+}
+
+.modal-close-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.modal-close-icon:hover {
+    color: #ffffff;
+}
+
+.modal-body-scroll {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer-bar {
+    padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* =========================================================
+   4. FORM CONTROLS & BUTTONS
+   ========================================================= */
+.btn-prime-primary {
+    background: var(--primary-blue);
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-prime-primary:hover {
+    background: var(--primary-blue-hover);
+    box-shadow: var(--glow-blue);
+}
+
+.btn-prime-emerald {
+    background: var(--emerald-green);
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-prime-emerald:hover {
+    background: var(--emerald-hover);
+    box-shadow: var(--glow-emerald);
+}
+
+.btn-prime-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+    border: 1px solid var(--border-glass);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-prime-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.form-group-block {
+    margin-bottom: 14px;
+}
+
+.form-group-block label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-bottom: 5px;
+}
+
+.prime-input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.prime-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Global Toast Notification */
+.prime-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(50px);
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.prime-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}

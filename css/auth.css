@@ -1,0 +1,332 @@
+/* =========================================================
+   TAHSILDAR — AUTHENTICATION & EVALUATION PORTAL STYLES
+   Gov-Tech DPI Standard
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root {
+    --dark: #174d43;
+    --dark-deep: #0f352e;
+    --leaf: #287361;
+    --ink: #183332;
+    --muted: #637473;
+    --paper: #f6f2ea;
+    --line: #d7ddd2;
+    --saffron: #df8d25;
+    --saffron-hover: #c97c1d;
+    --cream: #fffdf8;
+    
+    --font-heading: 'DM Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    --shadow-box: 0 16px 40px rgba(23, 77, 67, 0.12);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-header-strip {
+    background: #0d2823;
+    color: #cbdad7;
+    font-size: 0.72rem;
+    padding: 6px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.auth-main-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.auth-card-box {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-box);
+    overflow: hidden;
+}
+
+.auth-card-header {
+    background: linear-gradient(135deg, var(--dark), var(--leaf));
+    color: #ffffff;
+    padding: 24px;
+    text-align: center;
+}
+
+.auth-emblem {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin: 0 auto 12px auto;
+}
+
+.auth-card-header h2 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.auth-card-header p {
+    font-size: 0.78rem;
+    color: #cbdad7;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tabs */
+.auth-tabs {
+    display: flex;
+    background: #f8faf9;
+    border-bottom: 1px solid var(--line);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 14px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.auth-tab-btn.active {
+    color: var(--dark);
+    background: #ffffff;
+    border-bottom-color: var(--leaf);
+}
+
+.auth-body-content {
+    padding: 24px;
+}
+
+.auth-tab-panel {
+    display: none;
+}
+
+.auth-tab-panel.active {
+    display: block;
+}
+
+.form-field-group {
+    margin-bottom: 16px;
+}
+
+.form-field-group label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--dark);
+    margin-bottom: 6px;
+}
+
+.form-input-field {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: var(--ink);
+    background: #fffdfa;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.form-input-field:focus {
+    border-color: var(--leaf);
+    box-shadow: 0 0 0 3px rgba(40, 115, 97, 0.15);
+}
+
+.demo-fill-card {
+    background: #f8faf8;
+    border: 1px dashed var(--leaf);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.demo-fill-info h5 {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--dark);
+}
+
+.demo-fill-info p {
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.btn-quick-fill {
+    background: var(--leaf);
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-quick-fill:hover {
+    background: var(--dark);
+}
+
+.btn-submit-auth {
+    width: 100%;
+    background: var(--dark);
+    color: #ffffff;
+    border: none;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(23, 77, 67, 0.25);
+}
+
+.btn-submit-auth:hover {
+    background: var(--leaf);
+    transform: translateY(-1px);
+}
+
+.btn-submit-saffron {
+    background: var(--saffron);
+    box-shadow: 0 4px 14px rgba(223, 141, 37, 0.25);
+}
+
+.btn-submit-saffron:hover {
+    background: var(--saffron-hover);
+}
+
+.auth-footer {
+    padding: 16px 24px;
+    text-align: center;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+    color: var(--muted);
+    background: #faf8f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.auth-footer a {
+    color: var(--leaf);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.kiwis-watermark {
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.kiwis-watermark b {
+    color: var(--dark);
+}
+
+/* =========================================================
+   ENTRANCE ANIMATION
+   ========================================================= */
+@keyframes authCardEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.auth-card-box {
+    animation: authCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.1s;
+}
+
+/* Subtle background pattern */
+.auth-main-container {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(40, 115, 97, 0.04), transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(23, 77, 67, 0.04), transparent 50%);
+}
+
+/* =========================================================
+   ACCESSIBILITY (Focus Rings)
+   ========================================================= */
+:focus-visible {
+    outline: 2px solid var(--leaf);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.auth-tab-btn:focus-visible {
+    outline-offset: -2px;
+}
+
+/* Input field success state */
+.form-input-field.filled {
+    border-color: var(--leaf);
+    background: #f8faf8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 520px) {
+    .auth-card-box {
+        border-radius: 12px;
+    }
+    .auth-body-content {
+        padding: 16px;
+    }
+    .demo-fill-card {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}

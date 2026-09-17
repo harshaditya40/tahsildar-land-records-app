@@ -1,0 +1,1574 @@
+/* =========================================================
+   TAHSILDAR — UNIFIED GOVERNMENT DESIGN SYSTEM (DPI 2.0)
+   National Land Governance Standard & Smart India Hackathon
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root {
+    /* Brand Greens (Primary & Authority) */
+    --gov-green-dark: #0f352e;
+    --gov-green: #174d43;
+    --gov-green-leaf: #287361;
+    --gov-green-light: #3d927e;
+    --gov-green-subtle: #eef6f4;
+    --gov-green-border: #c8dfd9;
+
+    /* Surfaces & Backgrounds */
+    --gov-bg: #f8faf9;
+    --gov-surface: #ffffff;
+    --gov-card: #ffffff;
+    --gov-border: #e2e8f0;
+    --gov-border-light: #edf2f7;
+    --gov-paper: #f6f2ea;
+    --gov-cream: #fffdf8;
+
+    /* Text & Ink */
+    --gov-text-primary: #0f172a;
+    --gov-text-secondary: #475569;
+    --gov-text-muted: #64748b;
+    --gov-text-light: #94a3b8;
+
+    /* Accent & Functional Statuses */
+    --gov-saffron: #df8d25;
+    --gov-saffron-hover: #c97c1d;
+    --gov-saffron-light: #fef3c7;
+    --gov-success: #16a34a;
+    --gov-success-light: #dcfce7;
+    --gov-danger: #dc2626;
+    --gov-danger-light: #fee2e2;
+    --gov-warning: #d97706;
+    --gov-warning-light: #fef3c7;
+    --gov-info: #0284c7;
+    --gov-info-light: #e0f2fe;
+
+    /* Typography */
+    --font-heading: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-serif: 'Playfair Display', Georgia, serif;
+
+    /* Shadows & Radii */
+    --shadow-xs: 0 1px 2px rgba(15, 53, 46, 0.04);
+    --shadow-sm: 0 2px 4px rgba(15, 53, 46, 0.06);
+    --shadow-md: 0 4px 12px rgba(15, 53, 46, 0.08);
+    --shadow-lg: 0 10px 25px rgba(15, 53, 46, 0.12);
+    --shadow-xl: 0 20px 40px rgba(15, 53, 46, 0.16);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* Layout Dimensions */
+    --header-height: 64px;
+    --strip-height: 28px;
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 72px;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: var(--font-body);
+    color: var(--gov-text-primary);
+    background-color: var(--gov-bg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================
+   1. GOVERNMENT TRICOLOR IDENTITY STRIP
+   ========================================================= */
+.gov-top-strip {
+    height: var(--strip-height);
+    background-color: #0d2621;
+    color: #e2e8f0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 1000;
+}
+
+.gov-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gov-flag {
+    display: flex;
+    flex-direction: column;
+    width: 14px;
+    height: 10px;
+    border-radius: 1px;
+    overflow: hidden;
+    box-shadow: 0 0 1px rgba(0,0,0,0.5);
+}
+
+.gov-flag-stripe-1 { background: #FF9933; flex: 1; }
+.gov-flag-stripe-2 { background: #FFFFFF; flex: 1; }
+.gov-flag-stripe-3 { background: #128807; flex: 1; }
+
+.gov-strip-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.70rem;
+    color: #cbd5e1;
+}
+
+/* =========================================================
+   2. INSTITUTIONAL HEADER
+   ========================================================= */
+.tahsildar-header {
+    height: var(--header-height);
+    background-color: var(--gov-surface);
+    border-bottom: 1px solid var(--gov-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: var(--shadow-xs);
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand-emblem-badge {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--gov-green) 0%, var(--gov-green-dark) 100%);
+    color: #ffffff;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 10px rgba(23, 77, 67, 0.25);
+}
+
+.brand-titles h1 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-titles .tag-dpi {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background-color: var(--gov-green-subtle);
+    color: var(--gov-green);
+    border: 1px solid var(--gov-green-border);
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.brand-titles p {
+    font-size: 0.72rem;
+    color: var(--gov-text-muted);
+    font-weight: 500;
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.btn-judge-pitch {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+}
+
+.btn-judge-pitch:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+    background: #fde047;
+}
+
+.badge-pilot {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--gov-green);
+    background: var(--gov-green-subtle);
+    border: 1px solid var(--gov-green-border);
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Role Switcher Pill */
+.role-pill-switcher {
+    display: flex;
+    align-items: center;
+    background: var(--gov-bg);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-full);
+    padding: 3px;
+    gap: 2px;
+}
+
+.role-pill-btn {
+    background: transparent;
+    border: none;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gov-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.role-pill-btn:hover {
+    color: var(--gov-green);
+}
+
+.role-pill-btn.active {
+    background: var(--gov-green);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(23, 77, 67, 0.2);
+}
+
+/* User Profile Badge & Dropdown */
+.user-menu-wrap {
+    position: relative;
+}
+
+.btn-user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    padding: 4px 12px 4px 6px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-user-profile:hover {
+    border-color: var(--gov-green-border);
+    background: var(--gov-green-subtle);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--gov-green);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.user-info-text {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info-text .user-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gov-text-primary);
+    line-height: 1.1;
+}
+
+.user-info-text .user-role {
+    font-size: 0.68rem;
+    color: var(--gov-text-muted);
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    display: none;
+    flex-direction: column;
+    z-index: 1001;
+    overflow: hidden;
+}
+
+.user-dropdown-menu.show {
+    display: flex;
+}
+
+.dropdown-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gov-border-light);
+    background: var(--gov-bg);
+}
+
+.dropdown-header h5 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gov-text-primary);
+}
+
+.dropdown-header p {
+    font-size: 0.70rem;
+    color: var(--gov-text-muted);
+}
+
+.dropdown-link {
+    padding: 10px 16px;
+    font-size: 0.80rem;
+    font-weight: 500;
+    color: var(--gov-text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.dropdown-link:hover {
+    background: var(--gov-green-subtle);
+    color: var(--gov-green);
+}
+
+.dropdown-link.logout {
+    color: var(--gov-danger);
+    border-top: 1px solid var(--gov-border-light);
+}
+
+.dropdown-link.logout:hover {
+    background: var(--gov-danger-light);
+}
+
+/* =========================================================
+   3. APP WORKSPACE LAYOUT (SIDEBAR + MAIN CONTENT)
+   ========================================================= */
+.workspace-container {
+    display: flex;
+    height: calc(100vh - var(--header-height) - var(--strip-height));
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Left Institutional Sidebar */
+.workspace-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--gov-surface);
+    border-right: 1px solid var(--gov-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 100;
+    transition: width 0.25s ease;
+}
+
+.sidebar-nav-group {
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-group-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gov-text-muted);
+    padding: 8px 12px 4px 12px;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--gov-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.sidebar-nav-item .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-nav-item i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    color: var(--gov-text-muted);
+    transition: color 0.2s ease;
+}
+
+.sidebar-nav-item:hover {
+    background-color: var(--gov-green-subtle);
+    color: var(--gov-green);
+}
+
+.sidebar-nav-item:hover i {
+    color: var(--gov-green);
+}
+
+.sidebar-nav-item.active {
+    background-color: var(--gov-green);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(23, 77, 67, 0.18);
+}
+
+.sidebar-nav-item.active i {
+    color: #ffffff;
+}
+
+.nav-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    background: var(--gov-border-light);
+    color: var(--gov-text-secondary);
+}
+
+.sidebar-nav-item.active .nav-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--gov-border-light);
+    background: var(--gov-bg);
+}
+
+.help-card-mini {
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+}
+
+.help-card-mini h6 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gov-green-dark);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.help-card-mini p {
+    font-size: 0.70rem;
+    color: var(--gov-text-muted);
+    line-height: 1.4;
+}
+
+/* =========================================================
+   4. MAIN WORKSPACE CONTENT PANELS (VIEW SWITCHER)
+   ========================================================= */
+.workspace-main {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+    background-color: var(--gov-bg);
+}
+
+.workspace-view {
+    display: none;
+    padding: 24px 32px 48px 32px;
+    min-height: 100%;
+}
+
+.workspace-view.active {
+    display: block;
+    animation: fadeIn 0.2s ease forwards;
+}
+
+/* Special Map View (Fills 100% with no padding) */
+.workspace-view.view-map-container {
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page Headers */
+.view-header {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.view-header-titles h2 {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+    letter-spacing: -0.02em;
+}
+
+.view-header-titles p {
+    font-size: 0.85rem;
+    color: var(--gov-text-muted);
+    margin-top: 4px;
+}
+
+.view-header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* =========================================================
+   5. BUTTON SYSTEM (GOVERNMENT GREEN / OUTLINE / SAFFRON)
+   ========================================================= */
+.btn-gov {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 9px 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    line-height: 1.2;
+}
+
+.btn-gov:focus-visible {
+    outline: 2px solid var(--gov-saffron);
+    outline-offset: 2px;
+}
+
+.btn-gov-primary {
+    background-color: var(--gov-green);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(23, 77, 67, 0.2);
+}
+
+.btn-gov-primary:hover {
+    background-color: var(--gov-green-dark);
+    box-shadow: 0 4px 12px rgba(23, 77, 67, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-gov-secondary {
+    background-color: var(--gov-surface);
+    color: var(--gov-green);
+    border-color: var(--gov-green-border);
+}
+
+.btn-gov-secondary:hover {
+    background-color: var(--gov-green-subtle);
+    border-color: var(--gov-green);
+}
+
+.btn-gov-saffron {
+    background-color: var(--gov-saffron);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(223, 141, 37, 0.25);
+}
+
+.btn-gov-saffron:hover {
+    background-color: var(--gov-saffron-hover);
+    transform: translateY(-1px);
+}
+
+.btn-gov-outline {
+    background-color: transparent;
+    color: var(--gov-text-secondary);
+    border-color: var(--gov-border);
+}
+
+.btn-gov-outline:hover {
+    background-color: var(--gov-border-light);
+    color: var(--gov-text-primary);
+}
+
+.btn-gov-sm {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+}
+
+.btn-gov-lg {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+}
+
+/* =========================================================
+   6. STAT KPI CARDS (DASHBOARD)
+   ========================================================= */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.kpi-card {
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-xs);
+    transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--gov-green-border);
+}
+
+.kpi-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+.kpi-icon-green { background: var(--gov-green-subtle); color: var(--gov-green); }
+.kpi-icon-amber { background: #fef3c7; color: #b45309; }
+.kpi-icon-blue { background: #e0f2fe; color: #0284c7; }
+.kpi-icon-purple { background: #f3e8ff; color: #7e22ce; }
+.kpi-icon-red { background: #fee2e2; color: #dc2626; }
+
+.kpi-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gov-text-muted);
+}
+
+.kpi-value {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+    line-height: 1.1;
+    margin: 2px 0;
+}
+
+.kpi-subtitle {
+    font-size: 0.72rem;
+    color: var(--gov-text-secondary);
+}
+
+/* =========================================================
+   7. WELCOME HERO BANNER (DASHBOARD)
+   ========================================================= */
+.welcome-hero-banner {
+    background: linear-gradient(135deg, var(--gov-green) 0%, var(--gov-green-dark) 100%);
+    color: #ffffff;
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-hero-banner::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 320px;
+    height: 100%;
+    background: radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.welcome-hero-text h3 {
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+}
+
+.welcome-hero-text p {
+    font-size: 0.88rem;
+    color: #cbdad7;
+    max-width: 580px;
+}
+
+.welcome-hero-actions {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+/* =========================================================
+   8. PROPERTY CARDS & LISTS ("MY LANDS")
+   ========================================================= */
+.property-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 20px;
+    margin-top: 16px;
+}
+
+.property-card {
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.property-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--gov-green-border);
+}
+
+.property-card-top {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gov-border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.prop-title-group h4 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+}
+
+.prop-title-group .prop-survey {
+    font-size: 0.82rem;
+    color: var(--gov-text-muted);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.prop-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.property-card-body {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    background: #fafcfb;
+    flex: 1;
+}
+
+.prop-data-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.prop-data-item .label {
+    font-size: 0.70rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gov-text-muted);
+}
+
+.prop-data-item .val {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--gov-text-primary);
+    font-family: var(--font-mono);
+    margin-top: 2px;
+}
+
+.property-card-actions {
+    padding: 14px 24px;
+    background: var(--gov-surface);
+    border-top: 1px solid var(--gov-border-light);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Status Badges */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+}
+
+.badge-status-verified {
+    background: var(--gov-success-light);
+    color: var(--gov-success);
+    border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+.badge-status-pending {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid rgba(180, 83, 9, 0.2);
+}
+
+.badge-status-disputed {
+    background: var(--gov-danger-light);
+    color: var(--gov-danger);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.badge-status-info {
+    background: var(--gov-info-light);
+    color: var(--gov-info);
+    border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+/* =========================================================
+   9. DATA TABLES (APPLICATIONS, QUEUES, LOGS)
+   ========================================================= */
+.table-card-wrap {
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+}
+
+.table-header-bar {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--gov-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafcfb;
+}
+
+.table-header-bar h4 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+}
+
+.gov-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: left;
+}
+
+.gov-table th {
+    background-color: #f1f5f3;
+    color: var(--gov-text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.70rem;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--gov-border);
+}
+
+.gov-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gov-border-light);
+    color: var(--gov-text-primary);
+    vertical-align: middle;
+}
+
+.gov-table tbody tr:hover {
+    background-color: var(--gov-green-subtle);
+}
+
+.gov-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* =========================================================
+   10. GIS MAP LIGHT-THEME OVERLAYS & CONTROLS
+   ========================================================= */
+#workspace-map {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Floating Clean Search Bar */
+.map-floating-search {
+    position: absolute;
+    top: 20px;
+    left: 24px;
+    z-index: 20;
+    width: 380px;
+}
+
+.search-box-light {
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    padding: 4px 6px 4px 16px;
+    gap: 10px;
+}
+
+.search-box-light i {
+    color: var(--gov-green);
+    font-size: 0.95rem;
+}
+
+.search-box-light input {
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--gov-text-primary);
+    width: 100%;
+    outline: none;
+}
+
+.search-box-light input::placeholder {
+    color: var(--gov-text-light);
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    max-height: 320px;
+    overflow-y: auto;
+    display: none;
+    z-index: 25;
+}
+
+.search-result-row {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gov-border-light);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.search-result-row:hover {
+    background: var(--gov-green-subtle);
+}
+
+.search-result-row .sr-title {
+    font-weight: 700;
+    font-size: 0.80rem;
+    color: var(--gov-green-dark);
+}
+
+.search-result-row .sr-meta {
+    font-size: 0.70rem;
+    color: var(--gov-text-muted);
+}
+
+/* Floating Layer Controls & Map Tools */
+.map-floating-tools {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.map-tool-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gov-text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.map-tool-btn:hover {
+    background: var(--gov-green);
+    color: #ffffff;
+    border-color: var(--gov-green);
+}
+
+/* GIS Map Legend (Bottom Right) */
+.map-legend-light {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    z-index: 20;
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 12px 16px;
+    font-size: 0.74rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 180px;
+}
+
+.legend-title {
+    font-weight: 700;
+    color: var(--gov-green-dark);
+    font-size: 0.76rem;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--gov-text-secondary);
+    font-weight: 500;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dot-clear { background: var(--gov-green); }
+.dot-occupied { background: #2563eb; }
+.dot-disputed { background: var(--gov-danger); }
+.dot-crz { background: #d97706; }
+
+/* Telemetry HUD (Bottom Left) */
+.map-telemetry-hud {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+    padding: 6px 16px;
+    font-size: 0.70rem;
+    font-family: var(--font-mono);
+    color: var(--gov-text-muted);
+    display: flex;
+    gap: 14px;
+}
+
+.map-telemetry-hud span {
+    color: var(--gov-green-dark);
+    font-weight: 700;
+}
+
+/* =========================================================
+   11. SLIDING RIGHT-SIDE PARCEL DRAWER
+   ========================================================= */
+.parcel-drawer {
+    position: absolute;
+    top: 0;
+    right: -480px;
+    width: 440px;
+    height: 100%;
+    background: var(--gov-surface);
+    border-left: 1px solid var(--gov-border);
+    box-shadow: var(--shadow-xl);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.parcel-drawer.open {
+    right: 0;
+}
+
+.drawer-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gov-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #fafcfb;
+}
+
+.drawer-header-left h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+}
+
+.drawer-header-left .drawer-ulpin {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gov-green);
+    margin-top: 2px;
+}
+
+.btn-close-drawer {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--gov-text-muted);
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.15s ease;
+}
+
+.btn-close-drawer:hover {
+    color: var(--gov-danger);
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.drawer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.drawer-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gov-text-muted);
+    border-bottom: 1px solid var(--gov-border-light);
+    padding-bottom: 4px;
+}
+
+.drawer-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.drawer-footer-actions {
+    padding: 16px 24px;
+    border-top: 1px solid var(--gov-border);
+    background: #fafcfb;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* =========================================================
+   12. 6-STAGE STATUTORY MUTATION TIMELINE
+   ========================================================= */
+.timeline-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+    position: relative;
+}
+
+.timeline-wrap::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    bottom: 24px;
+    left: 20px;
+    width: 2px;
+    background: var(--gov-border);
+    z-index: 1;
+}
+
+.timeline-step {
+    display: flex;
+    gap: 18px;
+    padding: 12px 0;
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-node {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--gov-surface);
+    border: 2px solid var(--gov-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gov-text-muted);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.timeline-step.completed .timeline-node {
+    background: var(--gov-green);
+    border-color: var(--gov-green);
+    color: #ffffff;
+}
+
+.timeline-step.active .timeline-node {
+    background: #fef3c7;
+    border-color: #d97706;
+    color: #b45309;
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+}
+
+.timeline-content {
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    flex: 1;
+}
+
+.timeline-content h5 {
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--gov-green-dark);
+}
+
+.timeline-content p {
+    font-size: 0.78rem;
+    color: var(--gov-text-secondary);
+    margin-top: 4px;
+}
+
+.timeline-content .step-date {
+    font-size: 0.70rem;
+    color: var(--gov-text-muted);
+    margin-top: 6px;
+    font-family: var(--font-mono);
+}
+
+/* =========================================================
+   13. MODALS (FORM 6-A, CHAMBERS, ETC.)
+   ========================================================= */
+.gov-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 53, 46, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.gov-modal-overlay.open {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+.gov-modal-box {
+    background: var(--gov-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--gov-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--gov-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafcfb;
+}
+
+.modal-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gov-green-dark);
+}
+
+.modal-body {
+    padding: 24px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.modal-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--gov-border);
+    background: #fafcfb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Form inputs inside modals */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gov-text-primary);
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--gov-text-primary);
+    background: var(--gov-surface);
+    transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--gov-green);
+    box-shadow: 0 0 0 3px rgba(23, 77, 67, 0.1);
+}
+
+/* =========================================================
+   14. TOAST NOTIFICATIONS
+   ========================================================= */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.gov-toast {
+    pointer-events: auto;
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-left: 4px solid var(--gov-green);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 280px;
+    animation: slideInRight 0.25s ease forwards;
+}
+
+.gov-toast.toast-error { border-left-color: var(--gov-danger); }
+.gov-toast.toast-warning { border-left-color: var(--gov-warning); }
+.gov-toast.toast-success { border-left-color: var(--gov-success); }
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* =========================================================
+   15. RESPONSIVE BREAKPOINTS
+   ========================================================= */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 200px;
+    }
+    .property-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gov-top-strip {
+        display: none;
+    }
+    .workspace-sidebar {
+        position: absolute;
+        left: -100%;
+        height: 100%;
+        transition: left 0.25s ease;
+    }
+    .workspace-sidebar.mobile-open {
+        left: 0;
+        width: 260px;
+    }
+    .workspace-view {
+        padding: 16px;
+    }
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+    .parcel-drawer {
+        width: 100%;
+        right: -100%;
+    }
+    .welcome-hero-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 8px 12px;
+    }
+    .gov-brand h1 {
+        font-size: 1.1rem;
+    }
+    .gov-brand .subtitle {
+        display: none;
+    }
+    .header-nav {
+        gap: 6px;
+    }
+    .btn-gov {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    .gov-modal-box {
+        margin: 8px;
+        max-width: 96vw;
+    }
+    .hero-stat-card {
+        padding: 12px;
+    }
+}
+

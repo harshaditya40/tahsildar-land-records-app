@@ -1,0 +1,404 @@
+/* =========================================================
+   LANDSTACK PRIME - DESKS & SPECIALIZED WORKSPACES (v2.0)
+   Tahsildar, Citizen Vault, Surveyor, SRO, Collector & Bhu-AI
+   ========================================================= */
+
+/* =========================================================
+   1. TAHASILDAR / MRO JUDICIAL CHAMBERS
+   ========================================================= */
+.tahsildar-badge {
+    background: linear-gradient(135deg, #1e3a8a, #0f2b5c);
+    color: #93c5fd;
+    border: 1px solid rgba(147, 197, 253, 0.3);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notice-countdown-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.countdown-timer-box {
+    text-align: right;
+}
+
+.countdown-timer-box .days-left {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #f59e0b;
+    font-family: var(--font-mono);
+}
+
+.countdown-timer-box .timer-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.officer-task-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--primary-blue);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.officer-task-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.task-top-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.76rem;
+}
+
+.task-app-no {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: #60a5fa;
+}
+
+.task-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.task-details-grid strong {
+    color: #ffffff;
+}
+
+.task-actions-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================
+   2. CITIZEN BHU-AADHAAR VAULT & 4-STAGE STEPPER
+   ========================================================= */
+.citizen-profile-card {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.4), rgba(15, 23, 42, 0.8));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-info h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.profile-info p {
+    font-size: 0.76rem;
+    color: #93c5fd;
+    font-family: var(--font-mono);
+    margin-top: 3px;
+}
+
+.property-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.property-mini-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.property-mini-card:hover {
+    border-color: var(--emerald-green);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.property-mini-card h4 {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.property-mini-card p {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+}
+
+.property-mini-card .ulpin-code {
+    font-family: var(--font-mono);
+    color: #34d399;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin: 6px 0;
+    display: block;
+}
+
+/* 4-Stage Stepper Drawer */
+.stepper-timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 20px 0;
+}
+
+.stepper-timeline::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 11px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.step-node {
+    position: relative;
+    margin-bottom: 22px;
+}
+
+.step-marker {
+    position: absolute;
+    left: -28px;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 2px solid #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.step-node.completed .step-marker {
+    background: var(--emerald-green);
+    border-color: #34d399;
+}
+
+.step-node.active .step-marker {
+    background: var(--primary-blue);
+    border-color: #60a5fa;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+}
+
+.step-content h4 {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.step-content p {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.step-authority-tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    color: #93c5fd;
+    background: rgba(30, 58, 138, 0.4);
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+/* =========================================================
+   3. DISTRICT COLLECTOR WAR ROOM (BI EXECUTIVE DASHBOARD)
+   ========================================================= */
+.collector-header-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    border-bottom: 2px solid #3b82f6;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kpi-metric-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.kpi-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.kpi-card-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kpi-card-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    color: #ffffff;
+    margin: 8px 0 4px 0;
+}
+
+.kpi-card-sub {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+}
+
+.table-custom-dark {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+
+.table-custom-dark th {
+    background: rgba(30, 41, 59, 0.6);
+    color: #94a3b8;
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+}
+
+.table-custom-dark td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+}
+
+/* =========================================================
+   4. BHU-AI TITLE INTELLIGENCE RADAR (ASSISTANT PANEL)
+   ========================================================= */
+.bhu-ai-side-panel {
+    position: fixed;
+    top: 76px;
+    right: 20px;
+    width: 360px;
+    max-height: calc(100vh - 100px);
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 14px;
+    box-shadow: var(--glow-ai);
+    z-index: 1600;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideLeft 0.25s ease;
+}
+
+@keyframes slideLeft {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.bhu-ai-header {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(79, 70, 229, 0.3));
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bhu-ai-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.ai-risk-meter {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 14px;
+    text-align: center;
+}
+
+.risk-score-display {
+    font-size: 2.2rem;
+    font-weight: 900;
+    font-family: var(--font-heading);
+}
+
+.risk-score-display.safe { color: #10b981; }
+.risk-score-display.caution { color: #f59e0b; }
+.risk-score-display.danger { color: #ef4444; }
+
+.ai-audit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 14px 14px 14px;
+    font-size: 0.76rem;
+}
+
+.ai-audit-item {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ai-telugu-box {
+    margin: 0 14px 14px 14px;
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px dashed rgba(124, 58, 237, 0.4);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.74rem;
+    color: #e9d5ff;
+    line-height: 1.45;
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RECORD OF RIGHTS (ROR FORM 1-B) — LANDSTACK DPI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #525659;
+            margin: 0;
+            padding: 30px 10px;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+        .passbook-sheet {
+            background: #ffffff;
+            width: 800px;
+            margin: 0 auto;
+            padding: 40px 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px double #0f2b5c;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 6rem;
+            color: rgba(15, 43, 92, 0.05);
+            font-weight: 900;
+            pointer-events: none;
+            white-space: nowrap;
+            font-family: 'Cinzel', serif;
+        }
+        .header-section {
+            text-align: center;
+            border-bottom: 2px solid #0f2b5c;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .emblem-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f2b5c;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .dept-subtitle {
+            font-size: 0.8rem;
+            color: #475569;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .doc-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #b91c1c;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+        .meta-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f1f5f9;
+            color: #0f2b5c;
+            font-weight: 700;
+        }
+        .seal-signature-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dashed #cbd5e1;
+        }
+        .qr-box {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .sign-box {
+            text-align: right;
+            font-size: 0.75rem;
+        }
+        .btn-print-action {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0f2b5c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @media print {
+            body { background: transparent; padding: 0; }
+            .passbook-sheet { box-shadow: none; border: none; width: 100%; }
+            .btn-print-action { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print-action" onclick="window.print()">
+        <i class="fas fa-print"></i> Print Official Passbook
+    </button>
+
+    <div class="passbook-sheet">
+        <div class="watermark">LANDSTACK DPI</div>
+
+        <div class="header-section">
+            <div class="emblem-title">GOVERNMENT OF ANDHRA PRADESH</div>
+            <div class="dept-subtitle">REVENUE DEPARTMENT • DIGITAL INDIA LAND RECORD MODERNISATION PROGRAMME (DILRMP)</div>
+            <div class="doc-name">RECORD OF RIGHTS (FORM 1-B) PATTADAR PASSBOOK</div>
+            <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Issued under the Andhra Pradesh Rights in Land and Pattadar Pass Books Act, 1971</div>
+        </div>
+
+        <div class="meta-strip">
+            <div><strong>District:</strong> Visakhapatnam</div>
+            <div><strong>Mandal:</strong> Visakhapatnam Urban</div>
+            <div><strong>Village / Ward:</strong> Ward 14 (Madhurawada)</div>
+            <div><strong>Khata No:</strong> <code style="font-weight:800; color:#1e40af;">KT-89421</code></div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Survey / Sub-Div</th>
+                    <th>14-Digit Bhu-Aadhaar (ULPIN)</th>
+                    <th>Pattadar / Owner Name</th>
+                    <th>Father / Husband Name</th>
+                    <th>Total Extent</th>
+                    <th>Land Classification</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:700;">148/24</td>
+                    <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#0f2b5c;">79Q5CNX8ICNOEL</td>
+                    <td style="font-weight:700;">Sri K. Rama Rao</td>
+                    <td>Late K. Satyanarayana</td>
+                    <td>2,400 Sq.Ft (266.7 Sq.Yds)</td>
+                    <td>Rayatuwari Dry (Patta Land)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="font-size:0.75rem; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; padding:10px 14px; border-radius:6px; margin-bottom:20px; line-height:1.5;">
+            <strong>STATUTORY ENCUMBRANCE & TITLE CERTIFICATION:</strong><br>
+            Certified that the parcel above is entered in the digitally signed Webland 2.0 electronic registry. All statutory field surveys were conducted by the Mandal Cadastral Surveyor with RTK GNSS sub-centimeter accuracy. The statutory 15-day notice period under Section 5(3) was completed with zero objections. The title is clear, unencumbered, and free from civil court stay orders.
+        </div>
+
+        <div class="seal-signature-box">
+            <div class="qr-box">
+                <div style="font-size:2rem; color:#0f2b5c; margin-bottom:4px;"><i class="fas fa-qrcode"></i></div>
+                <div><strong>DPI VERIFIED QR</strong></div>
+                <div style="font-family:'JetBrains Mono', monospace; font-size:0.65rem;">HASH: 8F9B24...C912</div>
+            </div>
+
+            <div style="text-align:center;">
+                <div style="border:2px solid #b91c1c; color:#b91c1c; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; margin:0 auto; font-size:0.6rem; font-weight:800; transform:rotate(-15deg);">
+                    OFFICIAL<br>REVENUE<br>SEAL
+                </div>
+            </div>
+
+            <div class="sign-box">
+                <div style="font-weight:800; color:#0f2b5c;">COMPETENT STATUTORY AUTHORITY</div>
+                <div style="color:#059669; font-weight:700; font-family:'JetBrains Mono', monospace; margin:3px 0;">[DIGITALLY SIGNED VIA e-SIGN PKI]</div>
+                <div><strong>Office of the Tahasildar & MRO</strong></div>
+                <div>Visakhapatnam Urban Revenue Division</div>
+                <div style="font-size:0.68rem; color:#64748b; font-family:'JetBrains Mono', monospace;">Token: DS-AP-REV-2026-86395-MRO</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

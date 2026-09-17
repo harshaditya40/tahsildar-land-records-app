@@ -1,0 +1,686 @@
+/* =========================================================
+   LANDSTACK PRIME - MAP & SPATIAL STYLES (v2.0)
+   Leaflet Cadastre, Infrastructure Layers, HUD & Search
+   ========================================================= */
+
+#map-container {
+    position: absolute;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #090e17;
+    z-index: 1;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    background: #090e17;
+}
+
+/* =========================================================
+   1. FLOATING SEARCH & ZONE FILTER BAR (TOP CENTER)
+   ========================================================= */
+.prime-search-wrapper {
+    position: fixed;
+    top: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 540px;
+    z-index: 1500;
+}
+
+.search-input-box {
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    border-radius: 26px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.2s;
+}
+
+.search-input-box:focus-within {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
+}
+
+.search-icon {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+}
+
+.search-field {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 0.84rem;
+    font-weight: 500;
+}
+
+.search-field::placeholder {
+    color: var(--text-dim);
+}
+
+.btn-search-filters-toggle {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-glass);
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-search-filters-toggle:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Search Dropdown Results */
+.search-results-popover {
+    margin-top: 8px;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    max-height: 320px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    display: none;
+}
+
+.search-result-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s;
+}
+
+.search-result-item:hover {
+    background: rgba(37, 99, 235, 0.15);
+}
+
+.result-main h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.result-main p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.result-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.badge-available { background: rgba(5, 150, 105, 0.2); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.4); }
+.badge-occupied { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4); }
+.badge-disputed { background: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.4); }
+
+/* =========================================================
+   2. LAYER CONTROLS & MAP LEGEND (BOTTOM CORNERS)
+   ========================================================= */
+.prime-map-legend {
+    position: fixed;
+    bottom: 24px;
+    left: 20px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-md);
+    z-index: 1200;
+    font-size: 0.74rem;
+}
+
+.legend-title {
+    font-weight: 800;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.68rem;
+}
+
+.legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: var(--text-muted);
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.dot-available { background: #059669; }
+.dot-occupied { background: #2563eb; }
+.dot-disputed { background: #dc2626; }
+.dot-crz { background: #f59e0b; border-radius: 50%; }
+
+/* Layer Switcher (Right Bottom) */
+.prime-layer-dock {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-md);
+    z-index: 1200;
+    font-size: 0.74rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.layer-toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.layer-toggle-item:hover {
+    color: #ffffff;
+}
+
+.layer-toggle-item input[type="checkbox"] {
+    accent-color: var(--primary-blue);
+    cursor: pointer;
+}
+
+/* =========================================================
+   3. SPATIAL TOOLS DOCK (OFFICER ONLY)
+   ========================================================= */
+.officer-tools-bar {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-accent);
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1300;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    width: 240px;
+    animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.tools-header {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tool-action-btn {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-glass);
+    color: var(--text-main);
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.tool-action-btn:hover {
+    background: rgba(37, 99, 235, 0.2);
+    border-color: var(--primary-blue);
+    transform: translateX(2px);
+}
+
+.tool-action-btn.active {
+    background: var(--primary-blue);
+    color: #ffffff;
+}
+
+/* =========================================================
+   4. TELEMETRY HUD BAR (BOTTOM CENTER)
+   ========================================================= */
+.prime-telemetry-hud {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 17, 32, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 4px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    z-index: 1100;
+    pointer-events: none;
+}
+
+.hud-item span {
+    color: #38bdf8;
+    font-weight: 700;
+}
+
+/* =========================================================
+   5. SLIDING PARCEL INFORMATION DRAWER (RIGHT PANEL)
+   ========================================================= */
+.parcel-drawer-panel {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    width: 400px;
+    max-width: 92vw;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(16px);
+    border-left: 1px solid var(--border-glass);
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.45);
+    z-index: 1600;
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.parcel-drawer-panel.open {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    padding: 16px 20px;
+    background: rgba(30, 41, 59, 0.6);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-header-titles h3 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.drawer-header-titles p {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.drawer-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.drawer-close-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.drawer-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.drawer-ulpin-box {
+    background: rgba(10, 17, 32, 0.7);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-ulpin-box code {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: #38bdf8;
+    font-weight: 700;
+}
+
+.btn-copy-ulpin {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-glass);
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-copy-ulpin:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #ffffff;
+}
+
+.drawer-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.drawer-metric-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.drawer-metric-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.drawer-metric-val {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.drawer-status-strip {
+    display: flex;
+    gap: 8px;
+}
+
+.drawer-status-chip {
+    flex: 1;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.chip-status-clear {
+    background: rgba(5, 150, 105, 0.15);
+    border: 1px solid rgba(5, 150, 105, 0.4);
+    color: #34d399;
+}
+
+.chip-status-inprog {
+    background: rgba(217, 119, 6, 0.15);
+    border: 1px solid rgba(217, 119, 6, 0.4);
+    color: #fbbf24;
+}
+
+.chip-status-disputed {
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    color: #f87171;
+}
+
+.drawer-actions-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.drawer-btn-primary {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #ffffff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.drawer-btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    transform: translateY(-1px);
+}
+
+.drawer-btn-emerald {
+    background: linear-gradient(135deg, #065f46, #059669);
+    color: #ffffff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.drawer-btn-emerald:hover {
+    background: linear-gradient(135deg, #059669, #10b981);
+    transform: translateY(-1px);
+}
+
+.drawer-btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-glass);
+    color: #ffffff;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.drawer-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* =========================================================
+   MAP PAGE ENTRANCE ANIMATION
+   ========================================================= */
+@keyframes mapFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#map-container {
+    animation: mapFadeIn 0.4s ease-out;
+}
+
+.prime-vertical-dock {
+    animation: mapFadeIn 0.5s ease-out both;
+    animation-delay: 0.3s;
+}
+
+.prime-search-wrapper {
+    animation: mapFadeIn 0.5s ease-out both;
+    animation-delay: 0.2s;
+}
+
+/* =========================================================
+   ACCESSIBILITY (Focus Rings for Map Controls)
+   ========================================================= */
+.search-field:focus-visible {
+    outline: none; /* handled by parent :focus-within */
+}
+
+.role-btn:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 1px;
+}
+
+.dock-pill-btn:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+}
+
+.drawer-btn-primary:focus-visible,
+.drawer-btn-emerald:focus-visible,
+.drawer-btn-secondary:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN (MAP PAGE)
+   ========================================================= */
+@media (max-width: 1200px) {
+    .role-switcher-bar {
+        gap: 2px;
+    }
+    .role-btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+    }
+    .role-btn span {
+        display: none;
+    }
+    .header-center {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .prime-vertical-dock {
+        top: auto;
+        bottom: 48px;
+        left: 10px;
+        right: 10px;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 6px;
+        padding: 6px;
+        background: rgba(10, 17, 32, 0.92);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        border: 1px solid var(--border-glass);
+    }
+    .dock-pill-btn span {
+        display: none;
+    }
+    .dock-pill-btn {
+        padding: 8px 10px;
+        border-radius: 8px;
+    }
+    .prime-map-legend,
+    .prime-layer-dock {
+        display: none;
+    }
+    .officer-tools-bar {
+        bottom: 100px;
+        right: 10px;
+        left: auto;
+        max-width: 280px;
+    }
+    .parcel-drawer-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .prime-top-header {
+        padding: 0 10px;
+        height: 56px;
+    }
+    .brand-titles h1 {
+        font-size: 0.95rem;
+    }
+    .brand-titles p {
+        display: none;
+    }
+    .prime-search-wrapper {
+        width: 95%;
+        top: 66px;
+    }
+    .prime-telemetry-hud {
+        font-size: 0.6rem;
+        gap: 8px;
+    }
+}

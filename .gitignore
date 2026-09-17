@@ -1,0 +1,30 @@
+# Environment & Secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+
+# Session & Auth Tokens
+.vercel-session
+.npm-cache
+*.session
+*.token
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# System & OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Build & deployment artifacts
+.vercel/
+node_modules/

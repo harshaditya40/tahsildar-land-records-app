@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "functions": {
+    "api/*.py": {
+      "includeFiles": "{js/**,static/**,templates/**,css/**,*.html,*.json,*.py}"
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, X-Requested-With" }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/login/", "destination": "/login.html" },
+    { "source": "/workspace", "destination": "/workspace.html" },
+    { "source": "/workspace/", "destination": "/workspace.html" },
+    { "source": "/citizen", "destination": "/workspace.html" },
+    { "source": "/citizen/", "destination": "/workspace.html" },
+    { "source": "/officer", "destination": "/workspace.html" },
+    { "source": "/officer/", "destination": "/workspace.html" },
+    { "source": "/map", "destination": "/map.html" },
+    { "source": "/map/", "destination": "/map.html" },
+    { "source": "/ror/(.*)", "destination": "/templates/ror_passbook.html" },
+    { "source": "/ror", "destination": "/templates/ror_passbook.html" },
+    { "source": "/ror/", "destination": "/templates/ror_passbook.html" },
+    { "source": "/tax/(.*)", "destination": "/templates/tax_assessment.html" },
+    { "source": "/tax", "destination": "/templates/tax_assessment.html" },
+    { "source": "/tax/", "destination": "/templates/tax_assessment.html" }
+  ]
+}

@@ -1,0 +1,1909 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAND STACK — GIS Land Governance & Cadastral Portal | SIH26014</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css?v=17.0">
+</head>
+<body>
+    <!-- Injected Server Role State -->
+    <script>
+        window.SERVER_IS_OFFICER = false;
+        window.PROMPT_OFFICER_LOGIN = false;
+    </script>
+
+    <!-- Top-Left Vertical Action Dock -->
+    <div class="landstack-vertical-dock">
+        <a href="/" class="dock-btn brand-dock-btn" title="LandStack Home">
+            <i class="fas fa-layer-group" style="color: #2563eb;"></i> <span>LandStack</span>
+        </a>
+
+        <!-- Citizen Services Quick Triggers (Vertically Aligned) -->
+        <button onclick="locateCitizenLivePosition(true)" id="btn-locate-citizen" class="dock-btn btn-locate-me" title="Point to My Current Location (GPS)">
+            <i class="fas fa-crosshairs" style="color: #059669;"></i> <span>My Location</span>
+        </button>
+        <button onclick="viewMyCitizenProperties()" id="btn-my-properties" class="dock-btn btn-my-prop" title="View & Zoom to Properties Linked to My Aadhaar">
+            <i class="fas fa-house-user" style="color: #059669;"></i> <span>My Lands (2)</span>
+        </button>
+        <button onclick="openCitizenMutationModal()" class="dock-btn btn-apply-mut" title="Apply Online for Land Mutation / Re-survey">
+            <i class="fas fa-file-invoice"></i> <span>Apply Mutation</span>
+        </button>
+        <button onclick="openTrackingDrawer()" class="dock-btn btn-track-mut" title="Track Live Application Lifecycle (4-Stage Progress)">
+            <i class="fas fa-route" style="color: #2563eb;"></i> <span>Track Status</span>
+        </button>
+
+        <!-- Module E Innovation Trigger: District Collector BI -->
+        <button onclick="openCollectorAnalyticsModal()" id="btn-collector-analytics" class="dock-btn btn-collector-dock" title="District Collector Decision-Support Analytics Dashboard">
+            <i class="fas fa-chart-pie" style="color: #8b5cf6;"></i> <span>Collector BI</span>
+        </button>
+
+        <!-- Officer Mode State (Tab-Isolated) -->
+        <div id="dock-officer-active" class="dock-officer-pill" style="display: none; flex-direction: column; align-items: stretch; gap: 4px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-user-shield" style="color: #60a5fa;"></i> <span>Officer Active</span>
+                </div>
+                <button onclick="logoutOfficer()" class="officer-logout-link" title="Logout from Officer Mode">Logout</button>
+            </div>
+            <button onclick="openOfficerApprovalsModal()" class="dock-btn btn-officer-tasks" style="background: #1e40af; color: #ffffff; padding: 5px 8px; font-size: 0.75rem; margin-top: 2px; justify-content: space-between;" title="Review & Approve Stage 2 / Stage 3 Mutation Tasks">
+                <span><i class="fas fa-tasks"></i> Approvals</span>
+                <span id="badge-pending-tasks-count" style="background:#ef4444; color:#fff; border-radius:10px; padding:1px 6px; font-size:10px; font-weight:800;">0</span>
+            </button>
+        </div>
+        <button id="dock-officer-login" onclick="openModal('modal-officer-auth')" class="dock-btn btn-officer-auth" style="display: flex;" title="Officer Login">
+            <i class="fas fa-lock" style="color: #2563eb;"></i> <span>Officer Login</span>
+        </button>
+    </div>
+
+    <!-- Centered Floating Search Bar (Top Center) -->
+    <div class="search-container">
+        <form autocomplete="off" onsubmit="return false;" style="margin: 0; padding: 0;">
+            <!-- Hidden dummy inputs to trap browser autofill -->
+            <input type="text" style="display:none;" autocomplete="username" tabindex="-1">
+            <input type="password" style="display:none;" autocomplete="current-password" tabindex="-1">
+
+            <div class="search-bar">
+                <div class="search-box-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        type="search" 
+                        id="parcel-search" 
+                        name="land_search_query_rnd"
+                        placeholder="Search ULPIN, Survey No, Plot or address..."
+                        class="search-input-box"
+                        autocomplete="new-password"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        value=""
+                    >
+                    <button type="button" id="search-toggle-btn" class="search-toggle-btn" title="Toggle filters">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+            
+        <!-- Expandable Filters Panel -->
+        <div id="filters-panel" class="filters-panel" style="display: none;">
+            <div class="filter-group">
+                <label for="city-search"><i class="fas fa-map"></i> Zone</label>
+                <select id="city-search" class="filter-select">
+                    <option value="" selected>All Zones (80+ Real Parcels)</option>
+                    <option value="maddilapalem">Maddilapalem & HB Colony</option>
+                    <option value="mvp_colony">MVP Colony</option>
+                    <option value="siripuram">Siripuram</option>
+                    <option value="rushikonda">Rushikonda IT SEZ / GITAM</option>
+                    <option value="gajuwaka">Gajuwaka Industrial Corridor</option>
+                    <option value="madhurawada">Madhurawada Hub</option>
+                    <option value="seethammadhara">Seethammadhara</option>
+                    <option value="dwaraka_nagar">Dwaraka Nagar</option>
+                    <option value="anandapuram">Anandapuram</option>
+                    <option value="bheemili">Bheemili</option>
+                    <option value="pendurthi">Pendurthi</option>
+                    <option value="kurmannapalem">Kurmannapalem</option>
+                    <option value="gopalapatnam">Gopalapatnam</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="status-filter"><i class="fas fa-tag"></i> Status</label>
+                <select id="status-filter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="occupied">Occupied</option>
+                    <option value="disputed">Disputed</option>
+                </select>
+            </div>
+            
+            <div class="filter-buttons">
+                <button id="search-btn" class="btn-search"><i class="fas fa-filter"></i> Apply</button>
+                <button id="clear-btn" class="btn-clear"><i class="fas fa-undo"></i> Reset</button>
+            </div>
+        </div>
+        
+        <!-- Search Results Dropdown -->
+        <div id="search-results" class="search-results-dropdown" style="display: none;">
+            <div id="results-list" class="results-list"></div>
+        </div>
+    </div>
+
+    <!-- Officer Spatial Tools Dock (Positioned Above Parcel Status Legend Box) -->
+    <div id="officer-spatial-dock" class="officer-spatial-bottom-dock" style="display: none;">
+        <!-- Collapsible Toolbar Action Card -->
+        <div id="officer-toolbar" class="officer-spatial-toolbar" style="display: flex;">
+            <div class="toolbar-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fas fa-drafting-compass"></i> Officer Spatial Tools</span>
+                <button type="button" class="toolbar-close-btn" onclick="toggleOfficerToolbar(false)" title="Minimize Spatial Tools">&minus;</button>
+            </div>
+            <div class="toolbar-actions">
+                <button id="btn-add-parcel" class="tool-btn" onclick="openAddParcelModal()" title="Upload Shapefile (.zip) or GeoJSON to Create a New Parcel">
+                    <i class="fas fa-file-circle-plus" style="color: #059669;"></i> <span>Add Parcel</span>
+                </button>
+                <button id="btn-sro-tool" class="tool-btn" title="Simulate SRO Sale Deed Registration & Instant Mutation">
+                    <i class="fas fa-file-signature"></i> <span>SRO Sale Deed</span>
+                </button>
+                <button id="btn-draw-parcel" class="tool-btn" title="Draw and register a new surveyed parcel">
+                    <i class="fas fa-draw-polygon"></i> <span>Draw Parcel</span>
+                </button>
+                <button id="btn-subdivide-tool" class="tool-btn" title="Subdivide an existing parcel into 2 sub-plots">
+                    <i class="fas fa-cut"></i> <span>Subdivide Plot</span>
+                </button>
+                <button id="btn-drone-dgps" class="tool-btn" onclick="openDroneDGPSModal()" title="Ingest Drone DGPS RTK Survey Shapefile (Module D)">
+                    <i class="fas fa-satellite-dish"></i> <span>Drone DGPS</span>
+                </button>
+                <button id="btn-cancel-tool" class="tool-btn cancel-btn" style="display: none;" title="Cancel drawing/splitting action">
+                    <i class="fas fa-times"></i> <span>Cancel</span>
+                </button>
+            </div>
+            <div id="tool-instruction-hint" class="tool-hint-text" style="display: none;"></div>
+        </div>
+
+        <!-- Toggle Header / Pill Button -->
+        <button id="btn-toggle-officer-tools" class="officer-dock-toggle-btn active" onclick="toggleOfficerToolbar()" title="Toggle Officer Spatial Tools">
+            <i class="fas fa-drafting-compass" style="color: #2563eb;"></i>
+            <span>Spatial Tools</span>
+            <i id="officer-tool-chevron" class="fas fa-chevron-down toggle-chevron"></i>
+        </button>
+    </div>
+
+
+
+    <!-- Map Legend -->
+    <div class="map-legend">
+        <div class="legend-title"><i class="fas fa-layer-group"></i> Parcel Status</div>
+        <div class="legend-item">
+            <span class="legend-color legend-available"></span>
+            <span>Available</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-occupied"></span>
+            <span>Occupied</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-disputed"></span>
+            <span>Disputed</span>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- ==========================================
+         MODALS FOR CITIZEN & OFFICER ACTIONS
+         ========================================== -->
+    
+    <!-- 1. Draw New Parcel Modal -->
+    <div id="modal-new-parcel" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-draw-polygon"></i> Register New Surveyed Parcel</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-new-parcel')">&times;</button>
+            </div>
+            <form id="form-new-parcel">
+                <div class="modal-body">
+                    <div class="modal-grid-2">
+                        <div class="modal-field">
+                            <label>Survey Number *</label>
+                            <input type="text" id="new-survey-no" placeholder="e.g. 108/4A" required>
+                        </div>
+                        <div class="modal-field">
+                            <label>Plot / Lot Number</label>
+                            <input type="text" id="new-lot-no" placeholder="e.g. Plot 15" required>
+                        </div>
+                    </div>
+                    <div class="modal-grid-2">
+                        <div class="modal-field">
+                            <label>Zone / Locality *</label>
+                            <select id="new-zone" required>
+                                <option value="mvp_colony">MVP Colony</option>
+                                <option value="siripuram">Siripuram</option>
+                                <option value="rushikonda">Rushikonda</option>
+                                <option value="gajuwaka">Gajuwaka</option>
+                                <option value="madhurawada">Madhurawada</option>
+                                <option value="seethammadhara">Seethammadhara</option>
+                                <option value="dwaraka_nagar">Dwaraka Nagar</option>
+                            </select>
+                        </div>
+                        <div class="modal-field">
+                            <label>Property Type</label>
+                            <select id="new-property-type">
+                                <option value="Residential">Residential</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Industrial">Industrial</option>
+                                <option value="Mixed Use">Mixed Use</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Owner Name / Entity</label>
+                        <input type="text" id="new-owner-name" placeholder="e.g. Sri V. Srinivasa Rao">
+                    </div>
+                    <div class="modal-field">
+                        <label>Address *</label>
+                        <input type="text" id="new-address" placeholder="Full street address in Visakhapatnam" required>
+                    </div>
+                    <div class="modal-grid-2">
+                        <div class="modal-field">
+                            <label>Status</label>
+                            <select id="new-status">
+                                <option value="available">Available</option>
+                                <option value="occupied">Occupied</option>
+                                <option value="disputed">Disputed</option>
+                            </select>
+                        </div>
+                        <div class="modal-field">
+                            <label>Calculated Area</label>
+                            <input type="text" id="new-area-display" readonly style="background:#f1f5f9; font-weight:700;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-new-parcel')">Cancel</button>
+                    <button type="submit" class="btn-modal-primary"><i class="fas fa-save"></i> Save & Assign ULPIN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Subdivide Parcel Confirmation Modal (Turf.js Pothissing Engine) -->
+    <div id="modal-subdivide" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card" style="max-width: 680px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0f2b5c, #1e40af); color: #fff; padding: 14px 20px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: rgba(255,255,255,0.2); color:#fff; font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fas fa-layer-group"></i> Module D: Spatial Pothissing
+                        </span>
+                        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">Confirm Cadastral Plot Subdivision</h3>
+                    </div>
+                    <p style="margin: 2px 0 0 0; font-size: 0.73rem; color: #93c5fd;">
+                        AP Revenue Department • Turf.js Geodesic Polygon Bisection & 14-Digit Bhu-Aadhaar Lineage
+                    </p>
+                </div>
+                <button class="modal-close-btn" style="color:#fff; font-size:1.3rem; background:transparent; border:none; cursor:pointer;" onclick="closeModal('modal-subdivide')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 16px 20px;">
+                <!-- Parent & Linked Task Overview Strip -->
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.78rem;">
+                    <div>
+                        <span style="color: #64748b;">Parent Parcel:</span>
+                        <strong id="subdivide-parent-id" style="color: #0f2b5c; margin-left: 4px;">---</strong>
+                    </div>
+                    <div id="subdivide-linked-task-pill" style="display: none; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.72rem; border: 1px solid #fde68a;">
+                        <i class="fas fa-tasks"></i> Linked Task: <span id="subdivide-task-no">MUT-2026-...</span>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Total Extent:</span>
+                        <strong id="subdivide-parent-total-area" style="color: #1e40af; margin-left: 4px;">--- Sq.Ft</strong>
+                    </div>
+                </div>
+
+                <!-- Turf.js Bisected Sub-Plots Grid -->
+                <div class="subdivide-preview-box" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 12px;">
+                    <!-- Sub-Plot A Card -->
+                    <div class="subdivide-part" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h4 style="margin: 0; font-size: 0.88rem; color: #15803d; font-weight: 800;"><i class="fas fa-vector-square"></i> Sub-Plot A</h4>
+                            <span id="sub-share-pct-a" style="background: #dcfce7; color: #166534; font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">50.0% Share</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #334155; line-height: 1.5;">
+                            <p style="margin: 2px 0;"><strong>Derived ULPIN:</strong> <code id="sub-ulpin-a" style="background:#ffffff; color:#15803d; padding:1px 5px; border-radius:3px; font-weight:700;">---/A</code></p>
+                            <p style="margin: 2px 0;"><strong>Survey No:</strong> <span id="sub-survey-a" style="font-weight:700;">---A</span></p>
+                            <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 6px; padding: 6px 8px; margin: 6px 0;">
+                                <div style="font-size: 0.72rem; color: #64748b;">Turf.js Geodesic Area:</div>
+                                <div id="sub-area-metrics-a" style="font-size: 0.82rem; font-weight: 800; color: #15803d;">
+                                    <span id="sub-area-sqft-a">0</span> Sq.Ft &bull; <span id="sub-area-sqyds-a">0</span> Sq.Yds (<span id="sub-area-cents-a">0</span> Cts)
+                                </div>
+                            </div>
+                        </div>
+                        <label style="font-size:0.75rem; font-weight:700; color: #15803d; margin-top:6px; display:block;">Owner for Sub-Plot A *</label>
+                        <input type="text" id="sub-owner-a" style="width:100%; padding:6px 10px; border-radius:6px; border:1.5px solid #86efac; font-size:0.82rem; font-weight:600; box-sizing:border-box; background:#fff;" placeholder="Owner Name A">
+                    </div>
+
+                    <!-- Sub-Plot B Card -->
+                    <div class="subdivide-part" style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 8px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h4 style="margin: 0; font-size: 0.88rem; color: #1e40af; font-weight: 800;"><i class="fas fa-vector-square"></i> Sub-Plot B</h4>
+                            <span id="sub-share-pct-b" style="background: #dbeafe; color: #1e40af; font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">50.0% Share</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #334155; line-height: 1.5;">
+                            <p style="margin: 2px 0;"><strong>Derived ULPIN:</strong> <code id="sub-ulpin-b" style="background:#ffffff; color:#1e40af; padding:1px 5px; border-radius:3px; font-weight:700;">---/B</code></p>
+                            <p style="margin: 2px 0;"><strong>Survey No:</strong> <span id="sub-survey-b" style="font-weight:700;">---B</span></p>
+                            <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 6px 8px; margin: 6px 0;">
+                                <div style="font-size: 0.72rem; color: #64748b;">Turf.js Geodesic Area:</div>
+                                <div id="sub-area-metrics-b" style="font-size: 0.82rem; font-weight: 800; color: #1e40af;">
+                                    <span id="sub-area-sqft-b">0</span> Sq.Ft &bull; <span id="sub-area-sqyds-b">0</span> Sq.Yds (<span id="sub-area-cents-b">0</span> Cts)
+                                </div>
+                            </div>
+                        </div>
+                        <label style="font-size:0.75rem; font-weight:700; color: #1e40af; margin-top:6px; display:block;">Owner for Sub-Plot B *</label>
+                        <input type="text" id="sub-owner-b" style="width:100%; padding:6px 10px; border-radius:6px; border:1.5px solid #93c5fd; font-size:0.82rem; font-weight:600; box-sizing:border-box; background:#fff;" placeholder="Owner Name B">
+                    </div>
+                </div>
+
+                <!-- Geometric Balance Strip -->
+                <div style="background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 6px; padding: 6px 10px; font-size: 0.74rem; color: #475569; display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fas fa-check-circle" style="color:#059669;"></i> Geometry Check: <strong>Sub-Plot A + Sub-Plot B = 100.0% Closed Ring</strong></span>
+                    <span style="font-size:0.7rem; color:#64748b;">Tolerance: &plusmn;0.01%</span>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-subdivide')">Cancel</button>
+                <button type="button" id="btn-confirm-subdivide-submit" class="btn-modal-primary" style="background: #059669; border: none; padding: 8px 18px; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-check-double"></i> Execute Turf.js Subdivision
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SRO Deed Registration Modal (Officer Only) -->
+    <div id="modal-sro-deed" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card sro-modal-card" style="max-width: 620px;">
+            <div class="modal-header sro-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="sro-seal-badge"><i class="fas fa-landmark"></i></div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.05rem;">Registration & Stamps Department (SRO)</h3>
+                        <p style="margin:0; font-size:0.75rem; opacity:0.85;">Government of Andhra Pradesh • Live Deed Registration & Cadastral Auto-Mutation</p>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('modal-sro-deed')">&times;</button>
+            </div>
+            <form id="form-sro-deed" novalidate onsubmit="event.preventDefault(); submitSRODeedRegistration();">
+                <div class="modal-body" style="padding: 16px 20px;">
+                    <input type="hidden" id="sro-parcel-pk" value="">
+                    
+                    <!-- Subtle Demo Watermark/Badge -->
+                    <div style="font-size: 0.72rem; color: #1e40af; background: #eff6ff; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px; border: 1px dashed #bfdbfe; text-align: center; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-flask"></i> SIH26014 DEMO • Simulated Registration Workflow
+                    </div>
+
+                    <!-- Property Snapshot Overview Card -->
+                    <div class="sro-property-snapshot">
+                        <div class="snapshot-item">
+                            <span class="lbl">Bhu-Aadhaar ULPIN</span>
+                            <code class="val-ulpin" id="sro-snap-ulpin">79Q5...</code>
+                        </div>
+                        <div class="snapshot-item">
+                            <span class="lbl">Survey / Plot No</span>
+                            <span class="val" id="sro-snap-survey">---</span>
+                        </div>
+                        <div class="snapshot-item">
+                            <span class="lbl">Present Legal Owner</span>
+                            <span class="val text-danger" id="sro-snap-owner">---</span>
+                        </div>
+                        <div class="snapshot-item">
+                            <span class="lbl">Extent / Area</span>
+                            <span class="val" id="sro-snap-area">--- Sq.Ft</span>
+                        </div>
+                    </div>
+
+                    <!-- Compact Collapsible Property Schedule -->
+                    <details style="margin-top: 8px; font-size: 0.78rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px;">
+                        <summary style="font-weight: 700; color: #475569; cursor: pointer; outline: none;"><i class="fas fa-map-marked-alt"></i> Property Schedule (Click to expand details)</summary>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #cbd5e1;">
+                            <div><span style="color:#64748b;">District:</span> <strong>Visakhapatnam</strong></div>
+                            <div><span style="color:#64748b;">Mandal:</span> <strong id="sched-mandal">Visakhapatnam Urban</strong></div>
+                            <div><span style="color:#64748b;">Village / Ward:</span> <strong id="sched-ward">Ward 14</strong></div>
+                            <div><span style="color:#64748b;">Survey No:</span> <strong id="sched-survey">---</strong></div>
+                            <div><span style="color:#64748b;">Plot / Lot:</span> <strong id="sched-plot">---</strong></div>
+                            <div><span style="color:#64748b;">Extent:</span> <strong id="sched-extent">---</strong></div>
+                        </div>
+                    </details>
+
+                    <!-- 1. Deed Category Dropdown -->
+                    <div class="modal-field" style="margin-top: 12px;">
+                        <label><i class="fas fa-file-contract"></i> Deed Category *</label>
+                        <select id="sro-deed-type" onchange="onSRODeedCategoryChange()">
+                            <option value="sale_deed" selected>Absolute Sale Deed (క్రయ విక్రయ పత్రం)</option>
+                            <option value="gift_deed">Gift Settlement Deed (దాన పత్రం)</option>
+                            <option value="partition_deed">Partition Deed (భాగ విభజన పత్రం)</option>
+                            <option value="release_deed">Release / Relinquishment Deed</option>
+                        </select>
+                    </div>
+
+                    <!-- Cadastral Transfer Mode (Universal across all deeds) -->
+                    <div class="modal-field" style="margin-top: 10px; margin-bottom: 12px;">
+                        <label><i class="fas fa-sliders-h"></i> Cadastral Transfer Mode *</label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <label id="lbl-mode-full-transfer" style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; background: #eff6ff; border: 1.5px solid #2563eb; padding: 9px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; color: #1e40af;">
+                                <input type="radio" name="deed_spatial_mode" value="full_transfer" checked onchange="onDeedSpatialModeChange()">
+                                <span><i class="fas fa-file-contract"></i> Full Parcel Transfer (Single Title)</span>
+                            </label>
+                            <label id="lbl-mode-physical-partition" style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 9px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; color: #334155;">
+                                <input type="radio" name="deed_spatial_mode" value="physical_subdivision" onchange="onDeedSpatialModeChange()">
+                                <span><i class="fas fa-cut" style="color: #059669;"></i> Physical Parcel Partition / Subdivision</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Pothissing Prompt Card for Physical Parcel Partition -->
+                    <div id="sec-deed-physical-subdivision-prompt" style="display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 14px; margin-top: 10px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <div style="font-weight: 800; color: #15803d; font-size: 0.84rem; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-drafting-compass"></i> Interactive Pothissing Cut Required
+                            </div>
+                            <span style="font-size: 0.7rem; font-weight: 700; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 10px;">Turf.js Precision Engine</span>
+                        </div>
+                        <p style="font-size: 0.76rem; color: #334155; margin: 0 0 8px 0; line-height: 1.4;">
+                            This deed physically bisects the selected plot. Click below to launch the on-map line-cutting tool. The parties entered in this deed form will automatically be assigned as the new owners of <strong>Sub-Plot A</strong> and <strong>Sub-Plot B</strong>.
+                        </p>
+                        <div id="deed-partition-owners-preview" style="background: #ffffff; border: 1px dashed #86efac; border-radius: 6px; padding: 6px 10px; font-size: 0.74rem; margin-bottom: 10px; color: #1e293b; display: flex; justify-content: space-between;">
+                            <div><i class="fas fa-user-check" style="color: #2563eb;"></i> <strong>Sub-Plot A Owner:</strong> <span id="preview-part-owner-a" style="color: #1e40af; font-weight: 700;">Party A (Seller/Donor)</span></div>
+                            <div><i class="fas fa-user-plus" style="color: #059669;"></i> <strong>Sub-Plot B Owner:</strong> <span id="preview-part-owner-b" style="color: #047857; font-weight: 700;">Party B (Buyer/Donee)</span></div>
+                        </div>
+                        <button type="button" class="btn-modal-primary" style="background: #059669; border: none; padding: 8px 14px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 6px;" onclick="launchPothissingFromDeedModal()">
+                            <i class="fas fa-cut"></i> Cut & Bisect Plot on Live Map
+                        </button>
+                    </div>
+
+                    <!-- 2. CATEGORY: ABSOLUTE SALE DEED -->
+                    <div id="sec-deed-sale" style="display: block;">
+                        <div class="modal-grid-2" style="margin-top: 8px;">
+                            <div class="modal-field">
+                                <label><i class="fas fa-user-tag"></i> Seller / Transferor Full Name *</label>
+                                <input type="text" id="sro-sale-seller-name" placeholder="Full legal name of seller">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-id-card"></i> Seller / Transferor Identification / Aadhaar (Masked) *</label>
+                                <input type="text" id="sro-sale-seller-aadhaar" placeholder="XXXX-XXXX-4102" value="XXXX-XXXX-4102">
+                            </div>
+                        </div>
+                        <div class="modal-grid-2">
+                            <div class="modal-field">
+                                <label><i class="fas fa-user-check"></i> Buyer / Transferee Full Name *</label>
+                                <input type="text" id="sro-sale-buyer-name" placeholder="Full legal name of buyer">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-id-card"></i> Buyer / Transferee Identification / Aadhaar (Masked) *</label>
+                                <input type="text" id="sro-sale-buyer-aadhaar" placeholder="XXXX-XXXX-8921" value="XXXX-XXXX-8921">
+                            </div>
+                        </div>
+                        <div class="modal-field">
+                            <label><i class="fas fa-rupee-sign"></i> Sale Consideration Amount (₹) *</label>
+                            <input type="number" id="sro-sale-value" placeholder="e.g. 7500000" min="10000" step="1000" oninput="recalculateSROFees()">
+                        </div>
+                        <div style="font-size: 0.74rem; color: #047857; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 5px 8px; margin-top: 4px;">
+                            <i class="fas fa-exchange-alt"></i> <strong>Transaction:</strong> Seller &rarr; Buyer &bull; Ownership Transfer: <strong>Yes</strong>
+                        </div>
+                    </div>
+
+                    <!-- 3. CATEGORY: GIFT SETTLEMENT DEED -->
+                    <div id="sec-deed-gift" style="display: none;">
+                        <div class="modal-grid-2" style="margin-top: 8px;">
+                            <div class="modal-field">
+                                <label><i class="fas fa-user-tag"></i> Donor Full Name *</label>
+                                <input type="text" id="sro-gift-donor-name" placeholder="Full legal name of donor">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-id-card"></i> Donor Identification / Aadhaar (Masked) *</label>
+                                <input type="text" id="sro-gift-donor-aadhaar" placeholder="XXXX-XXXX-4102" value="XXXX-XXXX-4102">
+                            </div>
+                        </div>
+                        <div class="modal-grid-2">
+                            <div class="modal-field">
+                                <label><i class="fas fa-user-check"></i> Donee / Transferee Full Name *</label>
+                                <input type="text" id="sro-gift-donee-name" placeholder="Full legal name of donee">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-id-card"></i> Donee Identification / Aadhaar (Masked) *</label>
+                                <input type="text" id="sro-gift-donee-aadhaar" placeholder="XXXX-XXXX-8921" value="XXXX-XXXX-8921">
+                            </div>
+                        </div>
+                        <div class="modal-field">
+                            <label><i class="fas fa-rupee-sign"></i> Property / Market Value (₹) *</label>
+                            <input type="number" id="sro-gift-property-value" placeholder="e.g. 2000000" min="10000" step="1000" oninput="recalculateSROFees()">
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 0.78rem; color: #334155; display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                            <span><i class="fas fa-gift" style="color: #6366f1;"></i> <strong>Consideration Amount:</strong> ₹0 (Gift transaction)</span>
+                            <span style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;">Donor &rarr; Donee &bull; Ownership Transfer: Yes</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. CATEGORY: PARTITION DEED -->
+                    <div id="sec-deed-partition" style="display: none;">
+                        <!-- 4A. OWNERSHIP / SHARE PARTITION & CO-OWNER ALLOCATION -->
+                        <div id="submode-partition-share" style="display: block; margin-top: 6px;">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">
+                                <i class="fas fa-users"></i> Co-Owners & Undivided Share Allocation *
+                            </label>
+                            <div id="partition-coowners-list" style="display: flex; flex-direction: column; gap: 6px;">
+                                <!-- Dynamically populated co-owner rows -->
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 4px;">
+                                <button type="button" class="btn-modal-secondary" style="padding: 4px 10px; font-size: 0.74rem;" onclick="addPartitionCoOwnerRow()">
+                                    <i class="fas fa-plus"></i> Add Co-Owner
+                                </button>
+                                <div id="partition-share-indicator" style="font-size: 0.8rem; font-weight: 800; color: #059669;">
+                                    Total Share: 100.0% <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+
+                            <div class="modal-field" style="margin-top: 8px;">
+                                <label><i class="fas fa-rupee-sign"></i> Value of Property / Share (₹) *</label>
+                                <input type="number" id="sro-partition-share-value" placeholder="e.g. 5000000" min="10000" step="1000" oninput="recalculateSROFees()">
+                            </div>
+                            <div style="font-size: 0.73rem; color: #475569; background: #f1f5f9; padding: 5px 8px; border-radius: 5px; margin-top: 4px;">
+                                <i class="fas fa-info-circle" style="color: #2563eb;"></i> The existing ULPIN represents the cadastral parcel. Ownership shares will be updated on the title.
+                            </div>
+                        </div>
+
+                        <!-- Statutory Legal Documents Required for Partition / Succession -->
+                        <div style="margin-top: 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 12px;">
+                            <div style="font-size: 0.78rem; font-weight: 800; color: #92400e; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fas fa-file-shield"></i> Mandatory Statutory Uploads (Sec 5 ROR Act)</span>
+                                <span style="font-size: 0.7rem; font-weight: 600; color: #b45309;">PDF / Scanned Documents</span>
+                            </div>
+
+                            <!-- 1. Death Certificate File Upload -->
+                            <div class="sro-file-upload-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <i class="fas fa-file-pdf" style="color: #dc2626; font-size: 1.2rem;"></i>
+                                    <div style="min-width: 0; flex: 1;">
+                                        <div style="font-size: 0.76rem; font-weight: 700; color: #1e293b;">Death / Succession Certificate (Form 6) *</div>
+                                        <div id="label-sro-file-death" style="font-size: 0.7rem; color: #047857; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Death_Certificate_AP_VSP_0812.pdf (1.4 MB)</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <input type="file" id="sro-file-death" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" onchange="handleSROFileChange('death', this)">
+                                    <button type="button" class="btn-modal-secondary" style="padding: 4px 8px; font-size: 0.72rem; white-space: nowrap;" onclick="document.getElementById('sro-file-death').click()">
+                                        <i class="fas fa-upload"></i> Upload
+                                    </button>
+                                    <span class="badge-ready" id="badge-sro-file-death" style="font-size: 0.68rem; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 10px; padding: 2px 6px; font-weight: 700;">Ready</span>
+                                </div>
+                            </div>
+
+                            <!-- 2. Family Tree & Legal Heir File Upload -->
+                            <div class="sro-file-upload-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <i class="fas fa-file-pdf" style="color: #dc2626; font-size: 1.2rem;"></i>
+                                    <div style="min-width: 0; flex: 1;">
+                                        <div style="font-size: 0.76rem; font-weight: 700; color: #1e293b;">Family Tree & Legal Heir Certificate *</div>
+                                        <div id="label-sro-file-heir" style="font-size: 0.7rem; color: #047857; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Legal_Heir_Family_Tree_Genealogy.pdf (2.1 MB)</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <input type="file" id="sro-file-heir" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" onchange="handleSROFileChange('heir', this)">
+                                    <button type="button" class="btn-modal-secondary" style="padding: 4px 8px; font-size: 0.72rem; white-space: nowrap;" onclick="document.getElementById('sro-file-heir').click()">
+                                        <i class="fas fa-upload"></i> Upload
+                                    </button>
+                                    <span class="badge-ready" id="badge-sro-file-heir" style="font-size: 0.68rem; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 10px; padding: 2px 6px; font-weight: 700;">Ready</span>
+                                </div>
+                            </div>
+
+                            <!-- 3. Partition Settlement Deed Agreement Upload -->
+                            <div class="sro-file-upload-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <i class="fas fa-file-pdf" style="color: #dc2626; font-size: 1.2rem;"></i>
+                                    <div style="min-width: 0; flex: 1;">
+                                        <div style="font-size: 0.76rem; font-weight: 700; color: #1e293b;">Mutual Partition Settlement Deed *</div>
+                                        <div id="label-sro-file-part" style="font-size: 0.7rem; color: #047857; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Registered_Partition_Settlement_Deed.pdf (3.8 MB)</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <input type="file" id="sro-file-part" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" onchange="handleSROFileChange('part', this)">
+                                    <button type="button" class="btn-modal-secondary" style="padding: 4px 8px; font-size: 0.72rem; white-space: nowrap;" onclick="document.getElementById('sro-file-part').click()">
+                                        <i class="fas fa-upload"></i> Upload
+                                    </button>
+                                    <span class="badge-ready" id="badge-sro-file-part" style="font-size: 0.68rem; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 10px; padding: 2px 6px; font-weight: 700;">Ready</span>
+                                </div>
+                            </div>
+
+                            <!-- 4. Existing RoR 1B Passbook (Cadastral System Auto-Attached) -->
+                            <div class="sro-file-upload-card" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <i class="fas fa-certificate" style="color: #2563eb; font-size: 1.2rem;"></i>
+                                    <div style="min-width: 0; flex: 1;">
+                                        <div style="font-size: 0.76rem; font-weight: 700; color: #334155;">Existing Record of Rights (RoR 1-B) Extract</div>
+                                        <div id="label-sro-file-ror" style="font-size: 0.7rem; color: #64748b; font-family: monospace;">Webland_RoR_Extract_System_Attached.pdf (890 KB)</div>
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.68rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 2px 6px; font-weight: 700;">Auto-Attached</span>
+                            </div>
+
+                            <div style="font-size: 0.7rem; color: #b45309; margin-top: 6px;">
+                                <i class="fas fa-shield-alt"></i> <em>Uploaded statutory documents are forwarded to the Mandal Surveyor & Tahsildar for manual scrutiny before RoR title mutation.</em>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. CATEGORY: RELEASE / RELINQUISHMENT DEED -->
+                    <div id="sec-deed-release" style="display: none;">
+                        <div class="modal-grid-2" style="margin-top: 8px;">
+                            <div class="modal-field">
+                                <label><i class="fas fa-user-tag"></i> Releasor Full Name *</label>
+                                <input type="text" id="sro-release-releasor-name" placeholder="Full legal name of releasor">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-id-card"></i> Releasor Identification / Aadhaar (Masked) *</label>
+                                <input type="text" id="sro-release-releasor-aadhaar" placeholder="XXXX-XXXX-4102" value="XXXX-XXXX-4102">
+                            </div>
+                        </div>
+                        <div class="modal-grid-2">
+                            <div class="modal-field">
+                                <label><i class="fas fa-user-check"></i> Releasee / Beneficiary Full Name *</label>
+                                <input type="text" id="sro-release-releasee-name" placeholder="Full legal name of releasee">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-id-card"></i> Releasee Identification / Aadhaar (Masked) *</label>
+                                <input type="text" id="sro-release-releasee-aadhaar" placeholder="XXXX-XXXX-8921" value="XXXX-XXXX-8921">
+                            </div>
+                        </div>
+                        <div class="modal-grid-2">
+                            <div class="modal-field">
+                                <label><i class="fas fa-rupee-sign"></i> Value of Released Share (₹) *</label>
+                                <input type="number" id="sro-release-value" placeholder="e.g. 2500000" min="10000" step="1000" oninput="recalculateSROFees()">
+                            </div>
+                            <div class="modal-field">
+                                <label><i class="fas fa-percentage"></i> Released Share (%) *</label>
+                                <input type="number" id="sro-release-percentage" placeholder="50.0" min="1" max="100" step="0.1" value="50.0">
+                            </div>
+                        </div>
+                        <div style="font-size: 0.73rem; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; padding: 5px 8px; border-radius: 5px; margin-top: 4px;">
+                            <i class="fas fa-handshake-angle" style="color: #0f766e;"></i> Existing right/share is relinquished to the beneficiary. Beneficiary's total interest will be updated.
+                        </div>
+                    </div>
+
+                    <!-- 6. SRO Sub-Registrar Jurisdiction (Common to all) -->
+                    <div class="modal-field" style="margin-top: 10px;">
+                        <label><i class="fas fa-building-columns"></i> SRO Sub-Registrar Jurisdiction *</label>
+                        <select id="sro-office-select">
+                            <option value="SRO Visakhapatnam (Urban) - Ward 14" selected>SRO Visakhapatnam (Urban) - Ward 14</option>
+                            <option value="SRO Madhurawada (Zone 2)">SRO Madhurawada (Zone 2)</option>
+                            <option value="SRO Gajuwaka Industrial Zone">SRO Gajuwaka Industrial Zone</option>
+                            <option value="SRO Anandapuram Rural Division">SRO Anandapuram Rural Division</option>
+                            <option value="SRO Bheemunipatnam (Coastal Sub-District)">SRO Bheemunipatnam (Coastal Sub-District)</option>
+                        </select>
+                    </div>
+
+                    <!-- 7. Deed-Aware Statutory Fee Breakdown Card (Demo) -->
+                    <div class="sro-fee-breakdown-box">
+                        <div class="fee-row">
+                            <span id="lbl-fee-stamp"><i class="fas fa-stamp"></i> Estimated Stamp Duty (Demo):</span>
+                            <strong id="sro-fee-stamp">₹ 0</strong>
+                        </div>
+                        <div class="fee-row">
+                            <span id="lbl-fee-reg"><i class="fas fa-file-invoice-dollar"></i> Estimated Registration Fee (Demo):</span>
+                            <strong id="sro-fee-reg">₹ 0</strong>
+                        </div>
+                        <div class="fee-row fee-total">
+                            <span>Total Estimated Charges (Demo):</span>
+                            <strong id="sro-fee-total">₹ 0</strong>
+                        </div>
+                    </div>
+
+                    <!-- 8. Officer Verification Checkbox -->
+                    <div class="sro-officer-declaration">
+                        <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.8rem; color:#334155; cursor:pointer;">
+                            <input type="checkbox" id="sro-officer-cert-check" checked style="margin-top:3px;">
+                            <span>
+                                <strong>Sub-Registrar Officer Certification:</strong> I hereby certify that the parties have appeared before me, identities verified via biometric token, and statutory duties collected. Execute instant cadastral auto-mutation.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-sro-deed')">Cancel</button>
+                    <button type="button" id="btn-submit-sro-deed" onclick="submitSRODeedRegistration()" class="btn-modal-primary btn-sro-submit">
+                        <i class="fas fa-check-double"></i> Register Deed & Initiate Auto-Mutation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. SRO Registration Success & Mutation E-Receipt Modal -->
+    <div id="modal-sro-success" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card sro-success-card" style="max-width: 560px; text-align: center;">
+            <div class="modal-header sro-success-header" style="background: linear-gradient(135deg, #059669, #10b981); color: #ffffff; justify-content: center; position: relative;">
+                <h3 style="margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-shield-check"></i> SRO Deed Registered & Auto-Mutation Initiated
+                </h3>
+                <button class="modal-close-btn" style="position: absolute; right: 14px; top: 12px; color: #ffffff;" onclick="closeModal('modal-sro-success')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px 20px;">
+                <div class="success-seal-anim">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Deed Registration Completed (Simulated)</h4>
+                <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 14px;">
+                    Registration completed in prototype. An automated inter-departmental mutation request has been initiated.
+                </p>
+
+                <div class="sro-receipt-table">
+                    <div class="receipt-row">
+                        <span>Registration Status:</span>
+                        <strong style="color: #059669; font-weight: 800;"><i class="fas fa-check"></i> SUCCESS (SIMULATED)</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Document Number:</span>
+                        <strong id="receipt-deed-no" style="color: #047857; font-family: monospace;">AP/SRO/VSKP/2026/000123</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Registration Date:</span>
+                        <span id="receipt-timestamp" style="font-weight: 700; color: #0f172a;">04-Sep-2026</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Auto-Mutation Status:</span>
+                        <strong style="color: #2563eb; font-weight: 800;"><i class="fas fa-circle" style="font-size:0.6rem; color:#2563eb;"></i> INITIATED</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Mutation Reference:</span>
+                        <code id="receipt-mut-ref" style="font-weight: 700; color: #1e40af;">MUT-2026-000123</code>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Deed Category:</span>
+                        <span id="receipt-deed-cat" style="font-weight: 700; color: #0f172a;">Absolute Sale Deed</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Parties / Transferee:</span>
+                        <strong id="receipt-new-owner">---</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Bhu-Aadhaar ULPIN:</span>
+                        <code id="receipt-ulpin">---</code>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Declared Value / Consideration:</span>
+                        <strong id="receipt-sale-val">₹ 0</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>SRO Office:</span>
+                        <span id="receipt-sro-office" style="font-size:0.78rem;">SRO Visakhapatnam (Urban) - Ward 14</span>
+                    </div>
+                    <!-- Cadastral Impact Display -->
+                    <div class="receipt-row" style="background: #f0fdf4; border-radius: 6px; padding: 6px 8px; margin-top: 4px; border: 1px solid #bbf7d0;">
+                        <span><i class="fas fa-satellite-dish" style="color:#059669;"></i> <strong>Cadastral Impact:</strong></span>
+                        <strong id="receipt-cadastral-impact" style="color: #047857; text-align: right;">Ownership change recorded &rarr; Mutation initiated</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-action-buttons" style="display: flex; gap: 10px; margin-top: 18px;">
+                    <button type="button" id="btn-view-mutated-ror" class="btn-modal-primary" style="flex: 1; padding: 10px; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-certificate"></i> View Mutated RoR 1B
+                    </button>
+                    <button type="button" id="btn-view-mutated-tax" class="btn-modal-secondary" style="flex: 1; padding: 10px; font-size: 0.82rem; background: #0f766e; color: #ffffff; border: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-receipt"></i> View Updated GVMC Tax
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0; justify-content: center;">
+                <button type="button" class="btn-modal-secondary" style="width: 100%;" onclick="closeModal('modal-sro-success')">Close & Continue on Live Map</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODULE C: CITIZEN MUTATION & CADASTRE APPLICATION MODAL -->
+    <!-- ======================================================== -->
+    <div id="modal-citizen-mutation" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card citizen-mutation-card" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #065f46, #047857); color: #ffffff; padding: 14px 20px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="badge-dpi-state" style="background: rgba(255,255,255,0.2); color:#fff; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">LandStack DPI • Form 6-A</span>
+                        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.2px;">Online Mutation & Cadastral Demarcation</h3>
+                    </div>
+                    <p style="margin: 2px 0 0 0; font-size: 0.74rem; opacity: 0.9;">
+                        Citizen Land Governance Portal • National Core Engine (State Adaptor: AP MeeSeva / Webland 2.0)
+                    </p>
+                </div>
+                <button class="modal-close-btn" style="color:#ffffff;" onclick="closeModal('modal-citizen-mutation')">&times;</button>
+            </div>
+
+            <form id="form-citizen-mutation" novalidate onsubmit="return false;">
+                <div class="modal-body" style="padding: 18px 20px;">
+                    <!-- Aadhaar Linked Property Selector for Multi-Property Citizens -->
+                    <div id="mut-property-selector-box" style="margin-bottom: 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px;">
+                        <label for="mut-property-select-dropdown" style="font-size: 0.78rem; font-weight: 700; color: #1e40af; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-id-card"></i> Select Property Linked to Aadhaar</span>
+                            <span id="badge-linked-properties-count" style="background: #2563eb; color: #ffffff; font-size: 0.68rem; font-weight: 800; padding: 1px 7px; border-radius: 10px;">2 Properties Linked</span>
+                        </label>
+                        <select id="mut-property-select-dropdown" class="sro-input" onchange="handleCitizenPropertyDropdownChange(this.value)" style="font-weight: 700; color: #1e3a8a; background: #ffffff; border-color: #93c5fd;">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+
+                    <!-- Auto-filled Land Parcel Context Banner -->
+                    <div class="sro-parcel-summary" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 0.75rem; font-weight: 800; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fas fa-map-marked-alt"></i> Targeted Cadastral Land Parcel
+                            </span>
+                            <span id="mut-form-zone" style="font-size: 0.72rem; background: #dcfce7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Zone: Visakhapatnam</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem;">
+                            <div><strong>Bhu-Aadhaar ULPIN:</strong> <code id="mut-form-ulpin" style="color: #065f46; font-weight: 700;">79Q5G4J9001401</code></div>
+                            <div><strong>Survey / Plot No:</strong> <span id="mut-form-survey" style="font-weight: 700; color: #0f172a;">142/2A</span></div>
+                            <div><strong>Current RoR Owner:</strong> <span id="mut-form-cur-owner" style="font-weight: 600; color: #0f172a;">Revenue Department</span></div>
+                            <div><strong>Cadastral Extent:</strong> <span id="mut-form-area" style="font-weight: 600; color: #0f172a;">2,400 Sq.Ft (266.7 Sq.Yds)</span></div>
+                        </div>
+                        <input type="hidden" id="mut-form-parcel-id" value="">
+                    </div>
+
+                    <!-- Ownership Verification & Statutory Notice Banner -->
+                    <div id="mut-ownership-guard-notice" style="display: none; margin-bottom: 14px; border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; line-height: 1.45;"></div>
+
+                    <!-- Step 1: Mutation Category -->
+                    <div class="form-group-section" style="margin-bottom: 14px;">
+                        <label style="font-size: 0.82rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; display: block;">
+                            <i class="fas fa-tasks" style="color: #059669;"></i> Mutation / Service Category *
+                        </label>
+                        <select id="mut-form-type" class="sro-input" onchange="handleMutationTypeChange()" style="font-weight: 600; color: #0f2b5c;">
+                            <option value="sale">Sale / Title Transfer (క్రయ విక్రయ బ్యూటేషన్ - Post SRO Registration)</option>
+                            <option value="succession">Succession / Legal Heir Inheritance (వారసత్వ బ్యూటేషన్)</option>
+                            <option value="gift">Gift Settlement (దాన బ్యూటేషన్)</option>
+                            <option value="partition">Partition / Family Settlement (భాగ విభజన బ్యూటేషన్)</option>
+                            <option value="court_decree">Court Decree / Legal Order (కోర్టు డిక్రీ అమలు)</option>
+                            <option value="resurvey">Boundary Re-Survey & DGPS Demarcation (సరిహద్దు రీ-సర్వే / డీజీపీఎస్ గుర్తింపు)</option>
+                        </select>
+                    </div>
+
+                    <!-- Step 2: Applicant Identity & Contact -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 3px; display: block;">
+                                Applicant Full Name *
+                            </label>
+                            <input type="text" id="mut-applicant-name" class="sro-input" placeholder="e.g. Somayajula Venkateswara Rao" value="">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 3px; display: block;">
+                                Mobile Phone (for SMS Updates) *
+                            </label>
+                            <input type="text" id="mut-applicant-phone" class="sro-input" placeholder="+91 98480 23451" value="+91 98480 23451">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 3px; display: block;">
+                                Applicant Aadhaar (Masked) *
+                            </label>
+                            <input type="text" id="mut-applicant-aadhaar" class="sro-input" placeholder="XXXX-XXXX-8921" value="XXXX-XXXX-8921">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 3px; display: block;">
+                                Email Address (Optional)
+                            </label>
+                            <input type="email" id="mut-applicant-email" class="sro-input" placeholder="citizen@example.com" value="">
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Supporting Document Reference & Reason -->
+                    <div style="margin-bottom: 12px;">
+                        <label id="lbl-mut-doc-ref" style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 3px; display: block;">
+                            Registered SRO Deed Number / Legal Reference *
+                        </label>
+                        <input type="text" id="mut-doc-ref" class="sro-input" placeholder="e.g. AP-VSP-SRO-2026-04821 or MEESEVA-2026-981" value="">
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 3px; display: block;">
+                            Reason / Grounds for Application
+                        </label>
+                        <textarea id="mut-reason" class="sro-input" rows="2" style="resize: vertical; font-size: 0.8rem;" placeholder="Brief explanation of title change or boundary discrepancy..."></textarea>
+                    </div>
+
+                    <!-- Interactive Document Upload Section -->
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-file-upload" style="color: #059669;"></i> Upload Statutory Supporting Documents *</span>
+                            <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">PDF, JPG, PNG (Max 10MB each)</span>
+                        </label>
+                        
+                        <div id="mut-dropzone" style="border: 1.5px dashed #059669; border-radius: 8px; padding: 12px 14px; background: #f0fdf4; text-align: center; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('mut-file-input').click()">
+                            <input type="file" id="mut-file-input" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleCitizenFileChange(this)">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: #059669; margin-bottom: 4px;"></i>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #065f46;">Click to Browse or Drag & Drop Documents</div>
+                            <div style="font-size: 0.72rem; color: #047857; margin-top: 2px;">Attach Registered Sale/Gift Deed, Legal Heir Certificate, Death Certificate, or Encumbrance Certificate</div>
+                        </div>
+
+                        <!-- Uploaded Documents Live List Container -->
+                        <div id="mut-uploaded-files-list" style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Citizen Statutory Declaration -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; font-size: 0.74rem; color: #475569;">
+                        <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" id="chk-mut-declaration" checked style="margin-top: 2px;">
+                            <span>I hereby solemnly declare that all particulars submitted above are true and the referenced documents are authentic. I request initiation of field cadastral verification and statutory mutation under the AP Rights in Land and Pattadar Pass Books Act / National LandStack DPI.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-citizen-mutation')">Cancel</button>
+                    <button type="button" id="btn-submit-citizen-mutation" onclick="submitCitizenMutationApplication()" class="btn-modal-primary" style="background: #059669; border: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-paper-plane"></i> Submit Application & Generate Token
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODULE C: MUTATION ACKNOWLEDGMENT RECEIPT MODAL -->
+    <!-- ======================================================== -->
+    <div id="modal-mutation-receipt" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card" style="max-width: 520px; text-align: center;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #059669, #10b981); color: #ffffff; justify-content: center; position: relative;">
+                <h3 style="margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-check-circle"></i> Application Acknowledgment Receipt
+                </h3>
+                <button class="modal-close-btn" style="position: absolute; right: 14px; top: 12px; color: #ffffff;" onclick="closeModal('modal-mutation-receipt')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div style="width: 50px; height: 50px; background: #dcfce7; color: #15803d; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 1.5rem;">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 2px;">Application Registered Successfully!</h4>
+                <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                    Your request has been tokenized and routed to the Mandal Cadastral Surveyor.
+                </p>
+
+                <div class="sro-receipt-table" style="text-align: left; font-size: 0.82rem;">
+                    <div class="receipt-row">
+                        <span>Tracking Number:</span>
+                        <strong id="ack-app-no" style="color: #047857; font-family: monospace; font-size: 0.95rem;">MUT-2026-00481</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Bhu-Aadhaar ULPIN:</span>
+                        <code id="ack-ulpin" style="color: #065f46; font-weight: 700;">79Q5G4J9001401</code>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Applicant:</span>
+                        <strong id="ack-applicant-name">---</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Service Category:</span>
+                        <span id="ack-mutation-type">Sale Deed Mutation</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Current Stage:</span>
+                        <strong style="color: #2563eb;"><i class="fas fa-circle" style="font-size: 0.55rem;"></i> Stage 1: Received & Initial Scrutiny</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Citizen SLA Guarantee:</span>
+                        <span style="color: #b45309; font-weight: 700;"><i class="fas fa-clock"></i> 15 Business Days Resolution</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px; display: flex; gap: 10px;">
+                    <button type="button" class="btn-modal-primary" style="flex: 1; padding: 10px; font-size: 0.82rem; background: #0f2b5c; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="trackFromReceipt()">
+                        <i class="fas fa-route"></i> Track Live Progress Drawer
+                    </button>
+                    <button type="button" class="btn-modal-secondary" style="flex: 1; padding: 10px; font-size: 0.82rem;" onclick="closeModal('modal-mutation-receipt')">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODULE C: CITIZEN REQUEST TRACKING DRAWER (4-STAGE STEPPER) -->
+    <!-- ======================================================== -->
+    <div id="drawer-tracking-backdrop" class="gis-drawer-backdrop" style="display: none;" onclick="closeTrackingDrawer()"></div>
+    <div id="drawer-tracking" class="gis-tracking-drawer" style="display: none;">
+        <!-- Drawer Header -->
+        <div class="tracking-drawer-header">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-route" style="color: #60a5fa; font-size: 1.1rem;"></i>
+                    <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff;">Citizen Request Tracking</h3>
+                </div>
+                <p style="margin: 2px 0 0 0; font-size: 0.72rem; color: #94a3b8;">
+                    National LandStack DPI • 4-Stage Cadastral Lifecycle Engine
+                </p>
+            </div>
+            <button class="drawer-close-btn" onclick="closeTrackingDrawer()">&times;</button>
+        </div>
+
+        <!-- Search Bar & Sample Chips -->
+        <div class="tracking-drawer-search">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <input 
+                    type="text" 
+                    id="track-search-input" 
+                    placeholder="Enter Application No (MUT-2026-...) or ULPIN" 
+                    style="flex: 1; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.82rem; font-weight: 600;"
+                    onkeydown="if(event.key==='Enter') searchTrackApplication()"
+                >
+                <button type="button" onclick="searchTrackApplication()" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                    <i class="fas fa-search"></i> Track
+                </button>
+            </div>
+
+            <!-- Dynamic Recent Application Chips (Populated via API) -->
+            <div id="track-recent-chips-container" style="display: none; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: #64748b;">Recent:</span>
+                <div id="track-recent-chips-list" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            </div>
+        </div>
+
+        <!-- Drawer Content Body -->
+        <div id="tracking-drawer-content" class="tracking-drawer-body">
+            <div class="tracking-empty-state" style="text-align: center; padding: 45px 20px; color: #64748b;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 12px; border: 1px solid #bfdbfe;">
+                    <i class="fas fa-route"></i>
+                </div>
+                <h4 style="margin: 0 0 6px 0; color: #0f172a; font-size: 0.95rem;">Live Cadastral Request Tracking</h4>
+                <p style="font-size: 0.8rem; color: #64748b; margin: 0 0 16px 0; line-height: 1.4;">
+                    Enter your <strong>Application Number</strong> (e.g., <code>MUT-2026-XXXXX</code>) or <strong>ULPIN</strong> above to track lifecycle progress across all 4 stages.
+                </p>
+                <button type="button" class="btn-modal-primary" onclick="openCitizenMutationModal()" style="padding: 8px 16px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; margin: 0 auto; background: #059669;">
+                    <i class="fas fa-file-invoice"></i> Apply for Land Mutation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Government Officer Authentication PIN Modal -->
+    <div id="modal-officer-auth" class="gis-modal-backdrop" style="display: none;">
+
+        <div class="gis-modal-card" style="max-width: 420px; text-align: center; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="background:#0f2b5c; color:#fff; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px;">
+                <h3 style="font-size: 1.05rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-shield-alt" style="color: #60a5fa;"></i> Officer Access Portal
+                </h3>
+                <button class="modal-close-btn" style="color:#fff; font-size: 1.3rem; background: transparent; border: none; cursor: pointer;" onclick="closeModal('modal-officer-auth')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px 20px; background: #ffffff;">
+                <div style="width: 54px; height: 54px; background: #eff6ff; color: #1d4ed8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 1.4rem; border: 1px solid #bfdbfe;">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">Government Surveyor Authentication</h4>
+                <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 18px; line-height: 1.4;">
+                    Cadastral drawing and parcel subdivision tools require authorized Revenue Officer credentials.
+                </p>
+                <div style="margin-bottom: 16px;">
+                    <input 
+                        type="password" 
+                        id="officer-security-pin" 
+                        placeholder="Enter Officer PIN (e.g. 2026)" 
+                        style="width: 100%; padding: 11px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; text-align: center; letter-spacing: 2px; font-weight: 700;"
+                        onkeydown="if(event.key==='Enter') submitOfficerAuth()"
+                    >
+                    <div id="officer-auth-error" style="color: #dc2626; font-size: 0.78rem; font-weight: 700; margin-top: 8px; display: none;"></div>
+                </div>
+                <button type="button" id="btn-submit-officer-auth" class="btn-modal-primary" onclick="submitOfficerAuth()" style="width: 100%; padding: 11px; font-size: 0.92rem; font-weight: 700; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                    <i class="fas fa-key"></i> Verify & Authenticate
+                </button>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 14px; background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                    Demo PIN: <strong><code>2026</code></strong> or <strong><code>DoLR@2026</code></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Officer Multi-Stage Workflow Approval Desks Modal (Surveyor & Tahsildar) -->
+    <div id="modal-officer-approvals" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card officer-desks-card" style="max-width: 820px; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.35);">
+            <div class="modal-header" style="background: #0f2b5c; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 14px 20px;">
+                <div>
+                    <h3 style="font-size: 1.08rem; margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                        <i class="fas fa-tasks" style="color: #60a5fa;"></i> Officer Workflow Desks • Mutation Approvals
+                    </h3>
+                    <p style="margin: 3px 0 0 0; font-size: 0.72rem; color: #93c5fd;">
+                        Department of Land Resources & Revenue • Andhra Pradesh Cadastral Authority
+                    </p>
+                </div>
+                <button class="modal-close-btn" style="color:#fff; font-size: 1.3rem; background: transparent; border: none; cursor: pointer;" onclick="closeModal('modal-officer-approvals')">&times;</button>
+            </div>
+
+            <!-- Role Tabs (Surveyor Desk vs Tahsildar Desk) -->
+            <div class="officer-desk-tabs" style="display: flex; background: #f1f5f9; border-bottom: 2px solid #e2e8f0;">
+                <button type="button" id="tab-btn-surveyor" class="officer-desk-tab-btn active" onclick="switchOfficerDeskTab('surveyor')" style="flex: 1; padding: 12px; font-weight: 800; font-size: 0.84rem; border: none; background: #ffffff; color: #1e40af; cursor: pointer; border-bottom: 3px solid #2563eb; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-drafting-compass"></i>
+                    <span>Mandal Field Surveyor Desk (Stage 2)</span>
+                    <span id="badge-surveyor-tasks-count" style="background: #d97706; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem;">0</span>
+                </button>
+                <button type="button" id="tab-btn-tahsildar" class="officer-desk-tab-btn" onclick="switchOfficerDeskTab('tahsildar')" style="flex: 1; padding: 12px; font-weight: 700; font-size: 0.84rem; border: none; background: #f8fafc; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-signature"></i>
+                    <span>Tahsildar / MRO Desk (Stage 3)</span>
+                    <span id="badge-tahsildar-tasks-count" style="background: #2563eb; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem;">0</span>
+                </button>
+            </div>
+
+            <!-- Modal Body with Task List -->
+            <div class="modal-body" style="padding: 16px 20px; max-height: 520px; overflow-y: auto; background: #f8fafc;">
+                <!-- Surveyor Tasks Panel -->
+                <div id="desk-panel-surveyor" style="display: block;">
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.76rem; color: #1e40af; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <i class="fas fa-info-circle"></i> <strong>Surveyor Duty:</strong> Perform DGPS field demarcation / Drone survey inspection, verify boundary limits, and submit inspection remarks.
+                        </div>
+                        <button type="button" onclick="loadOfficerPendingTasks()" style="background:#2563eb; color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:0.72rem; font-weight:700; cursor:pointer;">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="surveyor-tasks-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Tahsildar Tasks Panel -->
+                <div id="desk-panel-tahsildar" style="display: none;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.76rem; color: #166534; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <i class="fas fa-shield-check"></i> <strong>Tahsildar Duty:</strong> Review 15-day statutory notice compliance, surveyor demarcation report, and digitally sign mutation order to update Webland 2.0.
+                        </div>
+                        <button type="button" onclick="loadOfficerPendingTasks()" style="background:#16a34a; color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:0.72rem; font-weight:700; cursor:pointer;">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="tahsildar-tasks-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Module D: Drone DGPS Cadastral Demarcation & Shapefile Ingestion Modal -->
+    <div id="modal-drone-dgps" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card" style="max-width: 680px; max-height: 90vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.35);">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0f2b5c, #1e40af); color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; position: sticky; top: 0; z-index: 10;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: rgba(255,255,255,0.2); color:#fff; font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fas fa-satellite"></i> Module D: DGPS Survey
+                        </span>
+                        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">Drone DGPS Cadastral Ingestion</h3>
+                    </div>
+                    <p style="margin: 2px 0 0 0; font-size: 0.72rem; color: #93c5fd;">
+                        AP Drone Corporation & Survey of India • SVAMITVA RTK Precision GNSS Demarcation
+                    </p>
+                </div>
+                <button class="modal-close-btn" style="color:#fff; font-size: 1.3rem; background: transparent; border: none; cursor: pointer;" onclick="closeModal('modal-drone-dgps')">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="padding: 16px 20px; background: #ffffff;">
+                <!-- Telemetry & Sensor Card -->
+                <div style="background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 14px; font-family: monospace; font-size: 0.75rem;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center;">
+                        <div style="border-right: 1px solid #334155; padding-right: 4px;">
+                            <div style="color: #60a5fa; font-size: 0.68rem;">FLIGHT ALTITUDE</div>
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #fff;">45.0 m AGL</div>
+                        </div>
+                        <div style="border-right: 1px solid #334155; padding-right: 4px;">
+                            <div style="color: #10b981; font-size: 0.68rem;">GNSS RTK ACCURACY</div>
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #10b981;">&plusmn; 1.2 cm</div>
+                        </div>
+                        <div style="border-right: 1px solid #334155; padding-right: 4px;">
+                            <div style="color: #f59e0b; font-size: 0.68rem;">SATELLITES LOCKED</div>
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #fff;">28 (NavIC/GPS)</div>
+                        </div>
+                        <div>
+                            <div style="color: #c084fc; font-size: 0.68rem;">GCP FIX STATUS</div>
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #c084fc;">RTK Fixed</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parcel Selector / Auto-Target with ULPIN Search -->
+                <div class="modal-field" style="margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="margin: 0; font-weight: 700; font-size: 0.82rem; color: #0f172a;">
+                            <i class="fas fa-vector-square"></i> Target Cadastral Parcel (Search by ULPIN) *
+                        </label>
+                        <span id="drone-search-match-count" style="font-size: 0.72rem; color: #2563eb; font-weight: 700;"></span>
+                    </div>
+
+                    <!-- ULPIN Search Input Bar -->
+                    <div style="position: relative; margin-bottom: 6px;">
+                        <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.82rem;"></i>
+                        <input type="text" id="drone-ulpin-search-input" placeholder="Type 14-digit ULPIN (e.g. 79Q5...), Survey No, or Plot Name..." oninput="window.filterDroneParcelsByULPIN(this.value)" style="width: 100%; padding: 8px 30px 8px 32px; border: 1.5px solid #94a3b8; border-radius: 6px; font-size: 0.82rem; font-weight: 600; box-sizing: border-box; background: #f8fafc;" autocomplete="off">
+                        <button type="button" onclick="document.getElementById('drone-ulpin-search-input').value=''; window.filterDroneParcelsByULPIN('');" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; line-height: 1;" title="Clear Search">&times;</button>
+                    </div>
+
+                    <!-- Filtered Parcel Dropdown -->
+                    <select id="drone-target-parcel" onchange="onDroneTargetParcelChange()" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600; background:#ffffff;">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+
+                    <!-- Active Target Parcel Summary Card -->
+                    <div id="drone-selected-parcel-card" style="margin-top: 6px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 12px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <div>
+                            <span style="color: #64748b;">ULPIN:</span> <code id="drone-card-ulpin" style="background:#ffffff; color:#0f2b5c; font-weight:800; padding:1px 6px; border-radius:3px; border:1px solid #94a3b8; font-size:0.75rem;">---</code>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">Sy No:</span> <strong id="drone-card-survey" style="color: #0f172a;">---</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">Owner:</span> <strong id="drone-card-owner" style="color: #047857;">---</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">Baseline:</span> <strong id="drone-card-area" style="color: #1e40af;">---</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drone Flight Survey Selection -->
+                <div class="modal-field" style="margin-bottom: 12px;">
+                    <label><i class="fas fa-plane-departure"></i> Select Drone DGPS Flight Dataset *</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 4px;">
+                        <button type="button" class="drone-preset-btn active" id="btn-drone-preset-1" onclick="selectDronePreset('DRONE-VSP-2026-F801')" style="padding: 10px; border: 1.5px solid #2563eb; background: #eff6ff; border-radius: 6px; text-align: left; cursor: pointer;">
+                            <div style="font-weight: 800; font-size: 0.8rem; color: #1e40af;"><i class="fas fa-crosshairs"></i> Flight #AP-VSP-801</div>
+                            <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">Sub-centimeter Orthomosaic GCP</div>
+                            <div style="font-size: 0.7rem; color: #059669; font-weight: 700; margin-top: 2px;">Validated Boundary Stream (&plusmn;1.2 cm)</div>
+                        </button>
+                        <button type="button" class="drone-preset-btn" id="btn-drone-preset-2" onclick="selectDronePreset('DRONE-VSP-2026-F904')" style="padding: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; border-radius: 6px; text-align: left; cursor: pointer;">
+                            <div style="font-weight: 800; font-size: 0.8rem; color: #334155;"><i class="fas fa-crosshairs"></i> Flight #AP-VSP-904</div>
+                            <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">Multi-Spectral DGPS Cadastre</div>
+                            <div style="font-size: 0.7rem; color: #059669; font-weight: 700; margin-top: 2px;">Verified Boundary Stream (&plusmn;1.5 cm)</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom GeoJSON / Shapefile Upload -->
+                <div class="modal-field" style="margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="margin: 0; font-size: 0.78rem; font-weight: 700; color: #475569;"><i class="fas fa-upload"></i> Upload DGPS Shapefile (.zip) or GeoJSON</label>
+                        <div style="display: flex; gap: 4px;">
+                            <a href="/static/drone_survey_79Q547SNA8EHU9.zip" download="drone_survey_79Q547SNA8EHU9.zip" style="font-size: 0.72rem; color: #0284c7; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; background: #e0f2fe; padding: 2px 8px; border-radius: 4px; border: 1px solid #bae6fd;">
+                                <i class="fas fa-file-archive"></i> Shapefile (.zip)
+                            </a>
+                            <a href="/static/drone_survey_79Q547SNA8EHU9.geojson" download="drone_survey_79Q547SNA8EHU9.geojson" style="font-size: 0.72rem; color: #2563eb; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">
+                                <i class="fas fa-code"></i> GeoJSON
+                            </a>
+                        </div>
+                    </div>
+                    <input type="file" id="drone-shapefile-input" accept=".zip,.shp,.geojson,.json" onchange="handleDroneFileImport(event)" style="width: 100%; padding: 6px; font-size: 0.78rem; border: 1px dashed #94a3b8; border-radius: 6px; box-sizing:border-box; background: #ffffff;">
+                    <div style="margin-top: 6px; display: flex; gap: 6px;">
+                        <button type="button" onclick="loadDemoSurveyGeoJSON('79Q547SNA8EHU9')" style="flex: 1; padding: 5px 10px; font-size: 0.72rem; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 5px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fas fa-bolt" style="color: #16a34a;"></i> 1-Click Load Demo Survey for ULPIN 79Q547SNA8EHU9
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calculated Survey Summary Box & Discrepancy Analysis -->
+                <div id="drone-calculated-summary" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; margin-bottom: 12px; font-size: 0.78rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="color: #64748b;">Drone Survey Area:</span>
+                        <strong id="drone-calc-area" style="color: #0f2b5c;">2,410.5 Sq.Ft (267.8 Sq.Yds)</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="color: #64748b;">Baseline Cadastre Discrepancy:</span>
+                        <span id="drone-area-delta-badge" style="font-weight: 700; color: #059669; background: #dcfce7; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem;">&Delta; +10.5 Sq.Ft (+0.43%)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #64748b;">Boundary Vertices:</span>
+                        <strong id="drone-calc-vertices" style="color: #1e40af;">4 DGPS Ground Control Points (GCPs RTK)</strong>
+                    </div>
+                </div>
+
+                <!-- Ground Control Points (GCP) Live Coordinates Table -->
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 0.76rem; font-weight: 700; color: #334155; margin: 0;">
+                            <i class="fas fa-map-pin" style="color: #eab308;"></i> Ground Control Points (GCP) RTK Coordinates
+                        </label>
+                        <span style="font-size: 0.68rem; color: #059669; font-weight: 700;">WGS84 EPSG:4326</span>
+                    </div>
+                    <div style="max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <table id="table-drone-gcps" style="width: 100%; border-collapse: collapse; font-size: 0.72rem; font-family: monospace;">
+                            <thead style="background: #f1f5f9; color: #475569; position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 4px 8px; text-align: left;">GCP #</th>
+                                    <th style="padding: 4px 8px; text-align: left;">Longitude</th>
+                                    <th style="padding: 4px 8px; text-align: left;">Latitude</th>
+                                    <th style="padding: 4px 8px; text-align: left;">RTK Precision</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-drone-gcps" style="color: #0f172a;">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 0; display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-drone-dgps')">Cancel</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" onclick="previewDroneOnMap()" class="btn-modal-secondary" style="background: #f1f5f9; color: #1e40af; border: 1px solid #bfdbfe;">
+                            <i class="fas fa-eye"></i> Preview on Satellite Map
+                        </button>
+                        <button type="button" id="btn-commit-drone-boundary" onclick="commitDroneSurveyToParcel()" class="btn-modal-primary" style="background: #059669;">
+                            <i class="fas fa-check-double"></i> Commit to Cadastral Database
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SPATIAL TOOLS: ADD NEW PARCEL VIA SHAPEFILE / GEOJSON -->
+    <!-- ======================================================== -->
+    <div id="modal-add-parcel" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card" style="max-width: 720px; max-height: 92vh; overflow-y: auto; padding: 0;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #065f46, #059669); color: #ffffff; padding: 14px 20px; position: sticky; top: 0; z-index: 10;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: rgba(255,255,255,0.2); color:#fff; font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fas fa-layer-group"></i> Cadastral Ingestion Desk
+                        </span>
+                        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Add New Cadastral Parcel</h3>
+                    </div>
+                    <p style="margin: 2px 0 0 0; font-size: 0.74rem; opacity: 0.9;">
+                        Ingest ESRI Shapefile (.zip) or GeoJSON to demarcate, calculate geodesic area, and register a new parcel.
+                    </p>
+                </div>
+                <button class="modal-close-btn" style="color:#ffffff; font-size:1.3rem; background:transparent; border:none; cursor:pointer;" onclick="closeModal('modal-add-parcel')">&times;</button>
+            </div>
+
+            <div class="modal-body" style="padding: 16px 20px;">
+                <!-- Step 1: File Ingestion -->
+                <div style="background: #f0fdf4; border: 1.5px dashed #10b981; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="margin: 0; font-size: 0.82rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-file-arrow-up"></i> Upload Survey Shapefile (.zip) or GeoJSON (.geojson/.json)
+                        </label>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            <a href="/static/vizag_railway_station.zip" download="vizag_railway_station.zip" style="font-size: 0.72rem; color: #1e40af; text-decoration: none; font-weight: 700; background: #dbeafe; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-train"></i> Vizag Rly Station (.zip)
+                            </a>
+                            <a href="/static/vizag_railway_station.geojson" download="vizag_railway_station.geojson" style="font-size: 0.72rem; color: #1d4ed8; text-decoration: none; font-weight: 700; background: #eff6ff; padding: 2px 8px; border-radius: 4px; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-code"></i> GeoJSON
+                            </a>
+                        </div>
+                    </div>
+                    <input type="file" id="add-parcel-file-input" accept=".zip,.shp,.geojson,.json" onchange="handleAddParcelFile(event)" style="width: 100%; padding: 8px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background: #ffffff;">
+                    <div style="display: flex; gap: 6px; margin-top: 6px;">
+                        <button type="button" onclick="loadAddParcelDemoFile('vizag_rly_zip')" style="flex: 1; padding: 6px 10px; font-size: 0.74rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 5px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fas fa-train" style="color: #2563eb;"></i> ⚡ 1-Click Load Vizag Railway Station (VSKP - 39.2 Acres)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Auto-Calculated Geodesic Geometry Card -->
+                <div id="add-parcel-geom-summary" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.78rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="color: #64748b; font-weight: 600;">Ingestion Status:</span>
+                        <span id="add-parcel-status-badge" style="background: #e2e8f0; color: #475569; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem;">Waiting for file upload</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="color: #64748b; font-weight: 600;">Calculated Geodesic Area:</span>
+                        <strong id="add-parcel-area-display" style="color: #065f46; font-size: 0.9rem;">-- Sq.Ft (-- Sq.Yds)</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #64748b; font-weight: 600;">Boundary Points / Centroid:</span>
+                        <span id="add-parcel-centroid-display" style="color: #1e40af; font-family: monospace; font-weight: 600;">No coordinates loaded</span>
+                    </div>
+                </div>
+
+                <!-- Step 3: Editable Cadastral Registration Form -->
+                <form id="form-add-parcel" onsubmit="submitNewParcelFromAddModal(event)">
+                    <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">14-Digit Bhu-Aadhaar ULPIN *</label>
+                            <input type="text" id="add-parcel-ulpin" placeholder="e.g. 79Q547NEWP0088" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1.5px solid #94a3b8; border-radius: 6px; font-family: monospace; font-weight: 700; background: #f8fafc; box-sizing: border-box;" required>
+                        </div>
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Survey Number *</label>
+                            <input type="text" id="add-parcel-survey-no" placeholder="e.g. Sy. No. 104/3" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Plot / Lot Number *</label>
+                            <input type="text" id="add-parcel-lot-no" placeholder="e.g. Plot 88" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" required>
+                        </div>
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Zone / Locality *</label>
+                            <select id="add-parcel-zone" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background:#fff;">
+                                <option value="gajuwaka">Gajuwaka</option>
+                                <option value="mvp_colony">MVP Colony</option>
+                                <option value="siripuram">Siripuram</option>
+                                <option value="rushikonda">Rushikonda</option>
+                                <option value="madhurawada">Madhurawada</option>
+                                <option value="seethammadhara">Seethammadhara</option>
+                                <option value="dwaraka_nagar">Dwaraka Nagar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Owner Name / Legal Entity *</label>
+                            <input type="text" id="add-parcel-owner-name" placeholder="e.g. Smt. K. Lakshmi Devi" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" required>
+                        </div>
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Property Type</label>
+                            <select id="add-parcel-prop-type" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background:#fff;">
+                                <option value="Residential">Residential</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Industrial">Industrial</option>
+                                <option value="Agricultural">Agricultural</option>
+                                <option value="Mixed Use">Mixed Use</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Status</label>
+                            <select id="add-parcel-status" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background:#fff;">
+                                <option value="available">Available</option>
+                                <option value="occupied">Occupied</option>
+                                <option value="disputed">Disputed</option>
+                            </select>
+                        </div>
+                        <div class="modal-field">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Estimated Market Value (₹)</label>
+                            <input type="number" id="add-parcel-market-val" placeholder="Auto-calculated" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                        </div>
+                    </div>
+
+                    <div class="modal-field" style="margin-bottom: 14px;">
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Full Street Address *</label>
+                        <input type="text" id="add-parcel-address" placeholder="e.g. Plot 88, Sector 4, Gajuwaka, Visakhapatnam" style="width: 100%; padding: 7px 10px; font-size: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" required>
+                    </div>
+
+                    <!-- Live GCP Coordinate Table -->
+                    <div style="margin-bottom: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569; margin: 0;">
+                                <i class="fas fa-map-pin"></i> Ingested Boundary Coordinates (RTK Survey Vertices)
+                            </label>
+                            <span style="font-size: 0.68rem; color: #059669; font-weight: 700;">WGS84 EPSG:4326</span>
+                        </div>
+                        <div style="max-height: 100px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; font-family: monospace;">
+                                <thead style="background: #f1f5f9; color: #475569; position: sticky; top: 0;">
+                                    <tr>
+                                        <th style="padding: 4px 8px; text-align: left;">Vertex</th>
+                                        <th style="padding: 4px 8px; text-align: left;">Longitude</th>
+                                        <th style="padding: 4px 8px; text-align: left;">Latitude</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-add-parcel-coords" style="color: #0f172a;">
+                                    <tr><td colspan="3" style="padding: 8px; text-align: center; color: #94a3b8;">No coordinates ingested yet</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="padding: 0; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-add-parcel')">Cancel</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="previewAddParcelBoundary()" class="btn-modal-secondary" style="background: #f1f5f9; color: #065f46; border: 1px solid #a7f3d0; font-weight: 700;">
+                                <i class="fas fa-eye"></i> Preview on Map
+                            </button>
+                            <button type="submit" id="btn-save-new-parcel" class="btn-modal-primary" style="background: #059669; font-weight: 700;">
+                                <i class="fas fa-save"></i> Save & Register Parcel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODULE C: OFFICER STATUTORY DOCUMENT SCRUTINY MODAL -->
+    <!-- ======================================================== -->
+    <div id="modal-document-scrutiny" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card" style="max-width: 780px; max-height: 92vh; overflow-y: auto; padding: 0;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #ffffff; padding: 14px 20px; position: sticky; top: 0; z-index: 10;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: rgba(255,255,255,0.2); color:#fff; font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fas fa-shield-check"></i> Statutory Scrutiny Desk
+                        </span>
+                        <h3 id="scrutiny-modal-title" style="margin: 0; font-size: 1.05rem; font-weight: 700;">Document Verification & Scrutiny</h3>
+                    </div>
+                    <p style="margin: 2px 0 0 0; font-size: 0.74rem; opacity: 0.9;">
+                        Mandal Revenue & Survey Office • AP LandStack DPI Verification System
+                    </p>
+                </div>
+                <button class="modal-close-btn" style="color:#ffffff; font-size:1.3rem; background:transparent; border:none; cursor:pointer;" onclick="closeModal('modal-document-scrutiny')">&times;</button>
+            </div>
+
+            <div class="modal-body" style="padding: 16px 20px; background: #f8fafc;">
+                <!-- Metadata Strip -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.76rem;">
+                    <div>
+                        <span style="color: #64748b;">Application No:</span>
+                        <strong id="scrutiny-app-no" style="font-family: monospace; color: #1e40af; margin-left: 4px;">---</strong>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Attached File:</span>
+                        <code id="scrutiny-file-name" style="background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; font-weight: 600;">---</code>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Doc Reference:</span>
+                        <strong id="scrutiny-doc-ref" style="color: #0f172a; margin-left: 4px;">---</strong>
+                    </div>
+                    <div>
+                        <span id="scrutiny-status-badge" style="font-size: 0.7rem; font-weight: 700; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px;">
+                            <i class="fas fa-clock"></i> Pending Scrutiny
+                        </span>
+                    </div>
+                </div>
+
+                <!-- View Mode Switcher Tabs -->
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button type="button" id="btn-scrutiny-tab-file" onclick="switchScrutinyViewTab('file')" style="flex: 1; padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: 1.5px solid #2563eb; background: #eff6ff; color: #1e40af; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                        <i class="fas fa-file-image"></i> Scrutinize Uploaded Document File
+                    </button>
+                    <button type="button" id="btn-scrutiny-tab-extract" onclick="switchScrutinyViewTab('extract')" style="flex: 1; padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: 1.5px solid #cbd5e1; background: #ffffff; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                        <i class="fas fa-landmark"></i> State Registry Extract (Form 6 / Record)
+                    </button>
+                </div>
+
+                <!-- 1. REAL UPLOADED FILE VIEWER PANEL (Default Active) -->
+                <div id="scrutiny-panel-file" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 14px;">
+                    <!-- File Inspection Toolbar -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; font-size: 0.76rem;">
+                        <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                            <span id="scrutiny-file-icon" style="color: #60a5fa; font-size: 1.1rem;"><i class="fas fa-file"></i></span>
+                            <span id="scrutiny-file-name-header" style="font-weight: 700; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Uploaded_File.jpeg</span>
+                            <span id="scrutiny-file-size-badge" style="background: #334155; color: #93c5fd; padding: 1px 6px; border-radius: 4px; font-size: 0.68rem;">1.4 MB</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <input type="file" id="scrutiny-manual-file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handleManualScrutinyFileUpload(this)">
+                            <button type="button" onclick="document.getElementById('scrutiny-manual-file-input').click()" title="Select/Replace actual document scan" style="background: #059669; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-folder-open"></i> Upload / Replace File
+                            </button>
+                            <button type="button" onclick="zoomScrutinyImage(0.15)" title="Zoom In" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.75rem;">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button type="button" onclick="zoomScrutinyImage(-0.15)" title="Zoom Out" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.75rem;">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button type="button" onclick="rotateScrutinyImage()" title="Rotate 90°" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.75rem;">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button type="button" onclick="resetScrutinyImage()" title="Reset View" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.75rem;">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button type="button" onclick="openScrutinyFileNewTab()" title="Open in New Tab" style="background: #2563eb; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; font-weight: 700;">
+                                <i class="fas fa-external-link-alt"></i> Open Full
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Visual File Container -->
+                    <div id="scrutiny-file-viewport" style="background: #090d16; border-radius: 6px; padding: 12px; min-height: 380px; max-height: 520px; overflow: auto; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <!-- Injected Image or Iframe or Canvas via JS -->
+                        <img id="scrutiny-img-element" src="" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 480px; object-fit: contain; border-radius: 4px; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 20px rgba(0,0,0,0.4);" />
+                        <iframe id="scrutiny-iframe-element" src="" style="width: 100%; height: 480px; border: none; border-radius: 4px; display: none; background: #ffffff;"></iframe>
+                        <div id="scrutiny-fallback-element" style="display: none; text-align: center; color: #94a3b8; padding: 40px 20px;">
+                            <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ef4444; margin-bottom: 10px;"></i>
+                            <h4 id="scrutiny-fallback-name" style="margin: 0 0 4px 0; color: #fff;">Document Ready</h4>
+                            <p style="font-size: 0.75rem; margin: 0 0 12px 0;">Official statutory attachment registered by citizen.</p>
+                            <button type="button" onclick="openScrutinyFileNewTab()" class="btn-modal-primary" style="padding: 6px 14px; font-size: 0.78rem;">
+                                <i class="fas fa-eye"></i> View Full Document
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. STATE REGISTRY EXTRACT PANEL (Alternative View) -->
+                <div id="scrutiny-panel-extract" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px; padding: 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); position: relative; margin-bottom: 14px; display: none;">
+                    <!-- Watermark Stamp -->
+                    <div style="position: absolute; right: 24px; top: 20px; opacity: 0.15; pointer-events: none;">
+                        <i class="fas fa-landmark" style="font-size: 6rem; color: #1e3a8a;"></i>
+                    </div>
+
+                    <!-- Certificate Header -->
+                    <div style="text-align: center; border-bottom: 2px double #cbd5e1; padding-bottom: 12px; margin-bottom: 14px;">
+                        <div style="font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; color: #1e3a8a; text-transform: uppercase;">
+                            GOVERNMENT OF ANDHRA PRADESH
+                        </div>
+                        <div style="font-size: 0.7rem; color: #475569; font-weight: 600;">
+                            REVENUE & REGISTRATION DEPARTMENT • VISAKHAPATNAM DISTRICT
+                        </div>
+                        <div id="scrutiny-cert-heading" style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-top: 6px; letter-spacing: -0.2px;">
+                            STATUTORY CERTIFICATE EXTRACT
+                        </div>
+                        <div style="font-size: 0.68rem; color: #64748b; font-family: monospace; margin-top: 2px;">
+                            System Verification ID: <span id="scrutiny-cert-token">SEC-AP-2026-98124</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Certificate Body -->
+                    <div id="scrutiny-cert-body" style="font-size: 0.8rem; line-height: 1.6; color: #334155;">
+                        <!-- Injected via JavaScript based on document type -->
+                    </div>
+
+                    <!-- Certificate Footer & Digital Seal -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
+                        <div style="font-size: 0.7rem; color: #64748b;">
+                            <div><i class="fas fa-qrcode" style="font-size: 1.4rem; color: #1e3a8a;"></i></div>
+                            <div style="margin-top: 4px;">DPI Cryptographic Verification QR</div>
+                            <div style="font-family: monospace; font-size: 0.65rem;">SHA256: 8f9b...a12c</div>
+                        </div>
+                        <div style="text-align: right; font-size: 0.72rem; color: #334155;">
+                            <div style="font-weight: 800; color: #1e3a8a;">COMPETENT STATUTORY AUTHORITY</div>
+                            <div>Office of the Sub-Registrar & Tahsildar</div>
+                            <div style="font-style: italic; color: #059669; font-weight: 700; margin-top: 2px;">
+                                <i class="fas fa-check-circle"></i> Authenticated e-Governance Document
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Officer Verification Checklist Form -->
+                <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #1e40af; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-clipboard-check"></i> Officer Scrutiny & Compliance Verification Checklist
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.76rem; color: #334155;">
+                        <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="chk-scrutiny-seal" checked style="margin-top: 2px;">
+                            <span><strong>Seal & Authority Verification:</strong> Official seal, serial number, and issuing authority digital credentials confirmed against government registry.</span>
+                        </label>
+                        <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="chk-scrutiny-kyc" checked style="margin-top: 2px;">
+                            <span><strong>Parties Identity / Legal Heirs:</strong> Full names, Aadhaar biometric verification tokens, and succession genealogy cross-checked.</span>
+                        </label>
+                        <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="chk-scrutiny-schedule" checked style="margin-top: 2px;">
+                            <span><strong>Property Schedule:</strong> Survey Number, Bhu-Aadhaar ULPIN, and recorded extent are consistent with Cadastral Master layers.</span>
+                        </label>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <label style="font-size: 0.76rem; font-weight: 700; color: #1e40af; display: block; margin-bottom: 4px;">
+                            Officer Scrutiny Remarks / Verification Notes:
+                        </label>
+                        <input type="text" id="scrutiny-officer-notes" value="Statutory document scrutinized and verified against civil records. All seals, identities, and land schedule confirmed authentic." style="width: 100%; padding: 6px 10px; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; background: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 0; display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-document-scrutiny')">
+                        <i class="fas fa-arrow-left"></i> Return to Queue
+                    </button>
+                    <button type="button" id="btn-confirm-doc-verify" onclick="submitOfficerDocumentScrutiny()" class="btn-modal-primary" style="background: #059669; border: none; padding: 8px 18px; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-check-double"></i> Mark Document Scrutinized & Verified
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================================================
+         MODULE E: DISTRICT COLLECTOR DECISION-SUPPORT ANALYTICS DASHBOARD MODAL
+         ============================================================================== -->
+    <div id="modal-collector-analytics" class="gis-modal-backdrop" style="display: none;">
+        <div class="gis-modal-card collector-analytics-modal-card" style="max-width: 1080px; width: 95vw; max-height: 92vh; overflow-y: auto; background: #f8fafc; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35); border: 1px solid #cbd5e1;">
+            
+            <!-- Executive Header -->
+            <div class="collector-modal-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #ffffff; padding: 20px 24px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3b82f6;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 2.2rem; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);">
+                        🏛️
+                    </div>
+                    <div>
+                        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: #93c5fd; font-weight: 700;">
+                            Government of Andhra Pradesh • Revenue & Disaster Management
+                        </div>
+                        <h2 style="margin: 2px 0 0 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px;">
+                            District Collector Executive Land Analytics Dashboard
+                        </h2>
+                        <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">
+                            Visakhapatnam District • DILRMP National LandStack Cadastral Decision Support System
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="fetchCollectorAnalyticsData(true)" class="collector-head-btn" title="Refresh live database aggregations" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-sync-alt" id="analytics-refresh-icon"></i> Refresh Data
+                    </button>
+                    <button onclick="printCollectorDossier()" class="collector-head-btn" title="Print / Export Collector Dossier" style="background: #2563eb; border: none; color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-print"></i> Print Dossier
+                    </button>
+                    <button class="modal-close-btn" onclick="closeModal('modal-collector-analytics')" style="color: #fff; font-size: 1.6rem; background: none; border: none; cursor: pointer;">&times;</button>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding: 20px 24px;">
+                
+                <!-- 4 Top-line Executive KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                    
+                    <!-- KPI 1: Cadastral Extent -->
+                    <div class="collector-kpi-card" style="background: #ffffff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                            <span>Surveyed Land Base</span>
+                            <i class="fas fa-map-marked-alt" style="color: #2563eb; font-size: 1rem;"></i>
+                        </div>
+                        <div style="margin: 8px 0 4px 0;">
+                            <span id="col-kpi-parcels" style="font-size: 1.6rem; font-weight: 800; color: #0f172a;">256</span>
+                            <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;"> Registered Parcels</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #475569; display: flex; justify-content: space-between;">
+                            <span>Extent: <strong><span id="col-kpi-acres">599.9</span> Acres</strong></span>
+                            <span style="color: #059669; font-weight: 700;">₹<span id="col-kpi-val">3,920.3</span> Cr Val</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Municipal Property Tax -->
+                    <div class="collector-kpi-card" style="background: #ffffff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; border-left: 4px solid #059669; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                            <span>GVMC Property Tax</span>
+                            <i class="fas fa-coins" style="color: #059669; font-size: 1rem;"></i>
+                        </div>
+                        <div style="margin: 8px 0 4px 0;">
+                            <span id="col-kpi-tax-efficiency" style="font-size: 1.6rem; font-weight: 800; color: #059669;">28.6%</span>
+                            <span style="font-size: 0.82rem; color: #64748b; font-weight: 600;"> Realized</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #475569; display: flex; justify-content: space-between;">
+                            <span>Collected: <strong>₹<span id="col-kpi-tax-collected">2.88</span> Cr</strong></span>
+                            <span>Demand: <strong>₹<span id="col-kpi-tax-demand">10.08</span> Cr</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Cadastral Dispute Rate -->
+                    <div class="collector-kpi-card" style="background: #ffffff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                            <span>Dispute & Litigation Rate</span>
+                            <i class="fas fa-gavel" style="color: #ef4444; font-size: 1rem;"></i>
+                        </div>
+                        <div style="margin: 8px 0 4px 0;">
+                            <span id="col-kpi-dispute-pct" style="font-size: 1.6rem; font-weight: 800; color: #ef4444;">1.6%</span>
+                            <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;"> Disputed Land</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #475569; display: flex; justify-content: space-between;">
+                            <span><strong><span id="col-kpi-dispute-count">4</span> Parcels</strong> Litigated</span>
+                            <span>Extent: <strong><span id="col-kpi-dispute-acres">2.4</span> Ac</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Mutation SLA Velocity -->
+                    <div class="collector-kpi-card" style="background: #ffffff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                            <span>Citizen Mutation SLA</span>
+                            <i class="fas fa-bolt" style="color: #8b5cf6; font-size: 1rem;"></i>
+                        </div>
+                        <div style="margin: 8px 0 4px 0;">
+                            <span id="col-kpi-mutation-avg" style="font-size: 1.6rem; font-weight: 800; color: #8b5cf6;">4.2</span>
+                            <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;"> Days Avg (vs 15d SLA)</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #475569; display: flex; justify-content: space-between;">
+                            <span>Compliance: <strong style="color: #059669;"><span id="col-kpi-mutation-compliance">96.8%</span> On-Time</strong></span>
+                            <span>Completed: <strong><span id="col-kpi-mutations-done">3</span></strong></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Main Analytical Panes Grid (2 Columns) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px;">
+                    
+                    <!-- Pane 1: Zone Distribution & Valuation -->
+                    <div style="background: #ffffff; border-radius: 10px; padding: 18px 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                            <h4 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: #0f172a;">
+                                <i class="fas fa-layer-group" style="color: #2563eb;"></i> Zone-wise Cadastral Land & Valuation Breakdown
+                            </h4>
+                            <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Top 8 Revenue Circles</span>
+                        </div>
+                        <div id="collector-zone-breakdown-list" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Pane 2: Environmental & CRZ Regulatory Compliance Matrix -->
+                    <div style="background: #ffffff; border-radius: 10px; padding: 18px 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                            <h4 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: #0f172a;">
+                                <i class="fas fa-shield-alt" style="color: #059669;"></i> Environmental & CRZ Regulatory Compliance
+                            </h4>
+                            <span style="font-size: 0.72rem; color: #059669; font-weight: 700; background: #ecfdf5; padding: 2px 8px; border-radius: 10px;">APSAC Monitored</span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px;">
+                                <div style="font-size: 0.72rem; color: #991b1b; font-weight: 700;">CRZ-I: No-Development Zone</div>
+                                <div style="font-size: 1.2rem; font-weight: 800; color: #b91c1c; margin: 3px 0;" id="col-crz-1-count">0 Plots</div>
+                                <div style="font-size: 0.68rem; color: #7f1d1d;">0-200m Shoreline High-Tide Buffer</div>
+                            </div>
+                            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 12px;">
+                                <div style="font-size: 0.72rem; color: #1e40af; font-weight: 700;">CRZ-II: Regulated Construction</div>
+                                <div style="font-size: 1.2rem; font-weight: 800; color: #2563eb; margin: 3px 0;" id="col-crz-2-count">2 Plots</div>
+                                <div style="font-size: 0.68rem; color: #1e3a8a;">200-500m Regulated Coastal Zone</div>
+                            </div>
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px;">
+                                <div style="font-size: 0.72rem; color: #166534; font-weight: 700;">Eco-Forest Sensitive Buffer</div>
+                                <div style="font-size: 1.2rem; font-weight: 800; color: #15803d; margin: 3px 0;" id="col-crz-eco-count">0 Plots</div>
+                                <div style="font-size: 0.68rem; color: #14532d;">Kambalakonda Forest Sanctuary</div>
+                            </div>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
+                                <div style="font-size: 0.72rem; color: #475569; font-weight: 700;">Clear Urban / Non-CRZ</div>
+                                <div style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 3px 0;" id="col-crz-clear-count">254 Plots</div>
+                                <div style="font-size: 0.68rem; color: #64748b;">Standard Master Plan Zoned</div>
+                            </div>
+                        </div>
+
+                        <!-- Summary alert box -->
+                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; font-size: 0.74rem; color: #92400e; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 0.95rem; color: #d97706;"></i>
+                            <span>All building approvals along the Rushikonda and Bheemili coastal strip are geofenced against the 200m CRZ-I NDZ line.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer" style="background: #ffffff; border-top: 1px solid #e2e8f0; padding: 14px 24px; border-radius: 0 0 12px 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 0.74rem; color: #64748b;">
+                    <i class="fas fa-lock" style="color: #059669;"></i> Certified Government Cadastral Decision Support Dossier • Andhra Pradesh DILRMP
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-modal-secondary" onclick="closeModal('modal-collector-analytics')" style="padding: 7px 16px; font-size: 0.8rem;">
+                        Close
+                    </button>
+                    <button type="button" onclick="printCollectorDossier()" class="btn-modal-primary" style="background: #0f2b5c; border: none; padding: 7px 18px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-print"></i> Print Collector Dossier
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Floating Global Toast Notification -->
+    <div id="toast-notification" style="display: none; position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(8px); color: #ffffff; padding: 10px 22px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; z-index: 9999; box-shadow: 0 4px 25px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); pointer-events: none; transition: all 0.3s ease;"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Turf.js Geodesic Spatial Analysis Engine (Module D Pothissing & Cadastral Slicing) -->
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+
+    <!-- Real AP Infrastructure & Geospatial Regulation Datasets -->
+    <script src="/static/watersupply.js?v=1.0"></script>
+    <script src="/static/powerGridTracks.js?v=1.0"></script>
+    <script src="/static/coastalRegulationZone.js?v=1.0"></script>
+
+    <!-- Custom Map JS with Cache Buster -->
+    <script src="/static/map.js?v=40.0"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAHSILDAR — Land Records & Services Desk (SIH26014)</title>
+    
+    <!-- Google Fonts: DM Sans, Inter, JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Leaflet GIS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Unified Government Design System CSS -->
+    <link rel="stylesheet" href="/css/tahsildar.css">
+</head>
+<body>
+
+    <!-- ==========================================
+         1. TOP GOVERNMENT IDENTITY STRIP
+         ========================================== -->
+    <div class="gov-top-strip">
+        <div class="gov-strip-left">
+            <div class="gov-flag" title="Republic of India">
+                <div class="gov-flag-stripe-1"></div>
+                <div class="gov-flag-stripe-2"></div>
+                <div class="gov-flag-stripe-3"></div>
+            </div>
+            <span>GOVERNMENT OF ANDHRA PRADESH &bull; DEPARTMENT OF LAND RESOURCES (DoLR)</span>
+        </div>
+        <div class="gov-strip-right">
+            <span>DILRMP Standard DPI</span>
+            <span>SIH26014 Pilot: Visakhapatnam (255 Parcels)</span>
+            <span id="strip-time" style="font-family:var(--font-mono);">2026-09-17 18:30 IST</span>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. INSTITUTIONAL NAVIGATION HEADER
+         ========================================== -->
+    <header class="tahsildar-header">
+        <div class="header-brand">
+            <a href="/" style="text-decoration:none; display:flex; align-items:center; gap:12px; color:inherit;">
+                <div class="brand-emblem-badge" title="TAHSILDAR State Land Portal">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="brand-titles">
+                    <h1>TAHSILDAR <span class="tag-dpi">DPI 2.0</span></h1>
+                    <p>Land Records & Services Desk &bull; Govt of India</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Center: SIH Pitch Deck & Hackathon Evaluation Trigger -->
+        <div class="header-center">
+            <button class="btn-judge-pitch" onclick="openPitchModal()">
+                <i class="fas fa-award"></i> <span>Judge Pitch Deck (SIH26014)</span>
+            </button>
+            <div class="badge-pilot">
+                <i class="fas fa-shield-alt"></i> Cadastre: 255 Parcels Verified
+            </div>
+        </div>
+
+        <!-- Right: Role Switcher & User Profile -->
+        <div class="header-right">
+            <div class="role-pill-switcher">
+                <button class="role-pill-btn active" id="btn-switch-citizen" onclick="switchUserRole('citizen')">
+                    <i class="fas fa-user-circle"></i> Citizen
+                </button>
+                <button class="role-pill-btn" id="btn-switch-officer" onclick="switchUserRole('officer')">
+                    <i class="fas fa-signature"></i> Tahasildar / MRO
+                </button>
+            </div>
+
+            <!-- User Menu -->
+            <div class="user-menu-wrap">
+                <button class="btn-user-profile" onclick="toggleUserDropdown()">
+                    <div class="user-avatar" id="user-avatar-initials">KR</div>
+                    <div class="user-info-text">
+                        <span class="user-name" id="header-user-name">Sri K. Rama Rao</span>
+                        <span class="user-role" id="header-user-role">Verified Citizen</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size:0.65rem; color:var(--gov-text-muted);"></i>
+                </button>
+                <div class="user-dropdown-menu" id="user-dropdown">
+                    <div class="dropdown-header">
+                        <h5 id="dropdown-user-name">Sri K. Rama Rao</h5>
+                        <p id="dropdown-user-sub">Bhu-Aadhaar: 5489-2104-8921</p>
+                    </div>
+                    <button class="dropdown-link" onclick="switchView('dashboard'); closeUserDropdown();">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </button>
+                    <button class="dropdown-link" onclick="switchView('my-lands'); closeUserDropdown();">
+                        <i class="fas fa-house-user"></i> My Land Portfolio
+                    </button>
+                    <a href="/" class="dropdown-link">
+                        <i class="fas fa-home"></i> Portal Landing Page
+                    </a>
+                    <button class="dropdown-link logout" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out / Switch Role
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         3. WORKSPACE CONTAINER (SIDEBAR + MAIN)
+         ========================================== -->
+    <div class="workspace-container">
+        <!-- Left Sidebar Navigation -->
+        <aside class="workspace-sidebar" id="app-sidebar">
+            <div class="sidebar-nav-group">
+                <div class="sidebar-group-label" id="sidebar-role-label">Citizen Workspace</div>
+                
+                <!-- 1. Dashboard -->
+                <a class="sidebar-nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
+                    <div class="nav-left">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </div>
+                </a>
+
+                <!-- 2. My Lands -->
+                <a class="sidebar-nav-item" data-view="my-lands" id="nav-item-my-lands" onclick="switchView('my-lands')">
+                    <div class="nav-left">
+                        <i class="fas fa-house-user"></i>
+                        <span>My Lands</span>
+                    </div>
+                    <span class="nav-badge" id="badge-my-lands-count">2</span>
+                </a>
+
+                <!-- 3. Live Map -->
+                <a class="sidebar-nav-item" data-view="map" onclick="switchView('map')">
+                    <div class="nav-left">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Live Map</span>
+                    </div>
+                    <span class="nav-badge" style="background:var(--gov-green-subtle); color:var(--gov-green);">GIS</span>
+                </a>
+
+                <!-- 4. Land Records / RoR -->
+                <a class="sidebar-nav-item" data-view="records" onclick="switchView('records')">
+                    <div class="nav-left">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Land Records</span>
+                    </div>
+                </a>
+
+                <!-- 5. Mutation Desk -->
+                <a class="sidebar-nav-item" data-view="mutation" onclick="switchView('mutation')">
+                    <div class="nav-left">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Mutation</span>
+                    </div>
+                    <span class="nav-badge" style="background:#fef3c7; color:#b45309;" id="badge-mutation-status">Active</span>
+                </a>
+
+                <!-- 6. Applications -->
+                <a class="sidebar-nav-item" data-view="applications" onclick="switchView('applications')">
+                    <div class="nav-left">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Applications</span>
+                    </div>
+                    <span class="nav-badge">3</span>
+                </a>
+
+                <!-- 7. Notifications -->
+                <a class="sidebar-nav-item" data-view="notifications" onclick="switchView('notifications')">
+                    <div class="nav-left">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </div>
+                    <span class="nav-badge" style="background:var(--gov-danger-light); color:var(--gov-danger);">2</span>
+                </a>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="help-card-mini">
+                    <h6><i class="fas fa-headset" style="color:var(--gov-green);"></i> Revenue Helpdesk</h6>
+                    <p>Mandal Revenue Office (MRO)<br>Toll-Free: <strong>1800-425-4440</strong></p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="workspace-main" id="workspace-main">
+            
+            <!-- =========================================================
+                 VIEW 1: CITIZEN DASHBOARD
+                 ========================================================= -->
+            <div class="workspace-view active" id="view-dashboard">
+                <div class="welcome-hero-banner">
+                    <div class="welcome-hero-text">
+                        <h3 id="welcome-user-title">Welcome back, Sri K. Rama Rao</h3>
+                        <p>Your land assets are verified with Aadhaar and surveyed on the official cadastral spatial database. Review mutation status, titles, or schedule a field inspection.</p>
+                    </div>
+                    <div class="welcome-hero-actions">
+                        <button class="btn-gov btn-gov-saffron" onclick="openModal('modal-apply-mutation')">
+                            <i class="fas fa-plus-circle"></i> Apply for Mutation
+                        </button>
+                        <button class="btn-gov btn-gov-secondary" onclick="switchView('map')">
+                            <i class="fas fa-map"></i> View on Cadastre
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Real Data KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card" onclick="switchView('my-lands')" style="cursor:pointer;">
+                        <div class="kpi-icon-box kpi-icon-green">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">My Lands</span>
+                            <span class="kpi-value" id="kpi-my-lands-val">2 Properties</span>
+                            <span class="kpi-subtitle">Madhurawada & Rushikonda</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="switchView('applications')" style="cursor:pointer;">
+                        <div class="kpi-icon-box kpi-icon-amber">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Pending Applications</span>
+                            <span class="kpi-value">1 Active</span>
+                            <span class="kpi-subtitle">Form 6-A (Sy. No. 148/24)</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="switchView('mutation')" style="cursor:pointer;">
+                        <div class="kpi-icon-box kpi-icon-blue">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Mutations</span>
+                            <span class="kpi-value">Stage 3 / 6</span>
+                            <span class="kpi-subtitle">Tahasildar Notice Review</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="switchView('records')" style="cursor:pointer;">
+                        <div class="kpi-icon-box kpi-icon-purple">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Records of Rights</span>
+                            <span class="kpi-value">2 Verified</span>
+                            <span class="kpi-subtitle">Form 1-B e-Passbooks</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Property Preview -->
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px;">
+                    <!-- Left: Recent Applications Table -->
+                    <div class="table-card-wrap">
+                        <div class="table-header-bar">
+                            <h4><i class="fas fa-history" style="color:var(--gov-green);"></i> Recent Statutory Applications</h4>
+                            <button class="btn-gov btn-gov-outline btn-gov-sm" onclick="switchView('applications')">View All</button>
+                        </div>
+                        <table class="gov-table">
+                            <thead>
+                                <tr>
+                                    <th>App ID</th>
+                                    <th>Service</th>
+                                    <th>Survey No.</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-recent-apps-tbody">
+                                <tr>
+                                    <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">MUT-2026-00481</strong></td>
+                                    <td>Title Mutation (Sale Deed)</td>
+                                    <td>Sy. No. 148/24A</td>
+                                    <td>01-Sep-2026</td>
+                                    <td><span class="badge-status badge-status-pending"><i class="fas fa-clock"></i> Tahasildar Notice</span></td>
+                                    <td><button class="btn-gov btn-gov-outline btn-gov-sm" onclick="trackSpecificMutation('MUT-2026-00481')">Track</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">PART-2026-000284</strong></td>
+                                    <td>Cadastral Bisection</td>
+                                    <td>Sy. No. 1/1</td>
+                                    <td>28-Aug-2026</td>
+                                    <td><span class="badge-status badge-status-verified"><i class="fas fa-check-circle"></i> Approved & Mutated</span></td>
+                                    <td><a href="/ror/2370/" target="_blank" class="btn-gov btn-gov-outline btn-gov-sm">View RoR</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Right: Quick Links Card -->
+                    <div class="help-card-mini" style="background:var(--gov-surface); padding:20px;">
+                        <h4 style="font-family:var(--font-heading); color:var(--gov-green-dark); margin-bottom:12px;">Quick Land Actions</h4>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <button class="btn-gov btn-gov-outline" style="justify-content:flex-start;" onclick="locateCitizenParcel('79Q5CNX8ICNOELA')">
+                                <i class="fas fa-crosshairs" style="color:var(--gov-green);"></i> Locate Madhurawada Plot (17-A)
+                            </button>
+                            <button class="btn-gov btn-gov-outline" style="justify-content:flex-start;" onclick="locateCitizenParcel('79Q5RUS004501')">
+                                <i class="fas fa-crosshairs" style="color:var(--gov-green);"></i> Locate Rushikonda Parcel (45)
+                            </button>
+                            <a href="/ror/2422/" target="_blank" class="btn-gov btn-gov-outline" style="justify-content:flex-start; text-decoration:none;">
+                                <i class="fas fa-download" style="color:var(--gov-green);"></i> Download Form 1-B e-Passbook
+                            </a>
+                            <a href="/tax/2422/" target="_blank" class="btn-gov btn-gov-outline" style="justify-content:flex-start; text-decoration:none;">
+                                <i class="fas fa-receipt" style="color:var(--gov-green);"></i> Municipal Tax Assessment
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 2: MY LANDS (PROPERTY LISTING)
+                 ========================================================= -->
+            <div class="workspace-view" id="view-my-lands">
+                <div class="view-header">
+                    <div class="view-header-titles">
+                        <h2>My Land Portfolio</h2>
+                        <p>Properties registered under Bhu-Aadhaar of Sri K. Rama Rao (Aadhaar: 5489-2104-8921)</p>
+                    </div>
+                    <div class="view-header-actions">
+                        <button class="btn-gov btn-gov-saffron" onclick="openModal('modal-apply-mutation')">
+                            <i class="fas fa-plus"></i> File Mutation (Form 6-A)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="property-cards-grid">
+                    <!-- Property 1: Madhurawada Plot 17-A -->
+                    <div class="property-card">
+                        <div class="property-card-top">
+                            <div class="prop-title-group">
+                                <h4>Plot 17-A (Sy. No. 148/24A)</h4>
+                                <div class="prop-survey">Madhurawada Village &bull; Visakhapatnam Urban Mandal</div>
+                            </div>
+                            <div class="prop-badges">
+                                <span class="badge-status badge-status-verified"><i class="fas fa-check-circle"></i> Clear Title</span>
+                                <span class="badge-status badge-status-pending"><i class="fas fa-clock"></i> Mutation Pending</span>
+                            </div>
+                        </div>
+                        <div class="property-card-body">
+                            <div class="prop-data-item">
+                                <span class="label">ULPIN (Bhu-Aadhaar)</span>
+                                <span class="val">79Q5CNX8ICNOELA</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Surveyed Extent</span>
+                                <span class="val">1,638.8 Sq.Ft (0.038 Ac)</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">RoR Status</span>
+                                <span class="val" style="color:var(--gov-green);">Form 1-B Verified</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Active Application</span>
+                                <span class="val" style="color:#b45309;">MUT-2026-00481</span>
+                            </div>
+                        </div>
+                        <div class="property-card-actions">
+                            <button class="btn-gov btn-gov-secondary btn-gov-sm" onclick="locateCitizenParcel('79Q5CNX8ICNOELA')">
+                                <i class="fas fa-map-marker-alt"></i> View on Map
+                            </button>
+                            <a href="/ror/2422/" target="_blank" class="btn-gov btn-gov-outline btn-gov-sm">
+                                <i class="fas fa-file-alt"></i> View RoR
+                            </a>
+                            <button class="btn-gov btn-gov-primary btn-gov-sm" onclick="trackSpecificMutation('MUT-2026-00481')">
+                                <i class="fas fa-route"></i> Track Mutation
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Property 2: Rushikonda Parcel 45 -->
+                    <div class="property-card">
+                        <div class="property-card-top">
+                            <div class="prop-title-group">
+                                <h4>Parcel 45 (Sy. No. 145/2)</h4>
+                                <div class="prop-survey">Rushikonda Village &bull; Visakhapatnam Urban Mandal</div>
+                            </div>
+                            <div class="prop-badges">
+                                <span class="badge-status badge-status-verified"><i class="fas fa-check-circle"></i> Clear Title</span>
+                                <span class="badge-status badge-status-info"><i class="fas fa-file-invoice"></i> Tax Assessed</span>
+                            </div>
+                        </div>
+                        <div class="property-card-body">
+                            <div class="prop-data-item">
+                                <span class="label">ULPIN (Bhu-Aadhaar)</span>
+                                <span class="val">79Q5RUS004501</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Surveyed Extent</span>
+                                <span class="val">5,06,358 Sq.Ft (11.62 Ac)</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">RoR Status</span>
+                                <span class="val" style="color:var(--gov-green);">Form 1-B Verified</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Mutation Status</span>
+                                <span class="val" style="color:var(--gov-green);">Clear / Up to Date</span>
+                            </div>
+                        </div>
+                        <div class="property-card-actions">
+                            <button class="btn-gov btn-gov-secondary btn-gov-sm" onclick="locateCitizenParcel('79Q5RUS004501')">
+                                <i class="fas fa-map-marker-alt"></i> View on Map
+                            </button>
+                            <a href="/ror/2370/" target="_blank" class="btn-gov btn-gov-outline btn-gov-sm">
+                                <i class="fas fa-file-alt"></i> View RoR
+                            </a>
+                            <button class="btn-gov btn-gov-outline btn-gov-sm" onclick="openApplyMutationForUlpin('79Q5RUS004501', 'Sy. No. 145/2')">
+                                <i class="fas fa-exchange-alt"></i> Apply Mutation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 3: GIS LIVE MAP (FULL-FIDELITY LANDSTACK DPI ENGINE)
+                 ========================================================= -->
+            <div class="workspace-view view-map-container" id="view-map" style="padding:0; overflow:hidden;">
+                <iframe id="workspace-gis-iframe" src="/map/?role=citizen&locate=true" style="width:100%; height:100%; border:none; display:block;"></iframe>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 4: LAND RECORDS / RoR 1-B PASSBOOK
+                 ========================================================= -->
+            <div class="workspace-view" id="view-records">
+                <div class="view-header">
+                    <div class="view-header-titles">
+                        <h2>Record of Rights (Form 1-B e-Passbook)</h2>
+                        <p>Statutory Title Passbooks authenticated with Bhu-Aadhaar and cryptographic verification.</p>
+                    </div>
+                    <div class="view-header-actions">
+                        <a href="/ror/2422/" target="_blank" class="btn-gov btn-gov-primary">
+                            <i class="fas fa-print"></i> Open Official e-Passbook
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Search Record -->
+                <div class="help-card-mini" style="background:var(--gov-surface); padding:20px; margin-bottom:24px;">
+                    <h4 style="font-family:var(--font-heading); color:var(--gov-green-dark); margin-bottom:12px;">Search Land Record</h4>
+                    <div style="display:flex; gap:12px;">
+                        <input type="text" class="form-input" id="record-search-val" placeholder="Enter 14-Digit ULPIN (e.g. 79Q5CNX8ICNOELA) or Survey No..." value="79Q5CNX8ICNOELA">
+                        <button class="btn-gov btn-gov-primary" onclick="searchRoRRecord()">
+                            <i class="fas fa-search"></i> Retrieve Form 1-B
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Verified Record Card -->
+                <div class="table-card-wrap" style="padding:28px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--gov-border); padding-bottom:20px; margin-bottom:20px;">
+                        <div>
+                            <span class="badge-status badge-status-verified" style="margin-bottom:8px;"><i class="fas fa-check-circle"></i> Cryptographically Verified Title</span>
+                            <h3 style="font-family:var(--font-heading); color:var(--gov-green-dark); font-size:1.4rem;">Record of Rights (Form 1-B) &bull; Khata No. 1048</h3>
+                            <p style="color:var(--gov-text-muted); font-size:0.85rem;">Mandal: Visakhapatnam Urban &bull; District: Visakhapatnam &bull; State: Andhra Pradesh</p>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-family:var(--font-mono); font-weight:700; color:var(--gov-green);">ULPIN: 79Q5CNX8ICNOELA</div>
+                            <div style="font-size:0.75rem; color:var(--gov-text-muted); margin-top:4px;">Survey Sy. No. 148/24A</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-bottom:24px;">
+                        <div class="prop-data-item">
+                            <span class="label">Pattadar Name</span>
+                            <span class="val">Sri K. Rama Rao</span>
+                        </div>
+                        <div class="prop-data-item">
+                            <span class="label">Father's / Husband's Name</span>
+                            <span class="val">Late K. Appa Rao</span>
+                        </div>
+                        <div class="prop-data-item">
+                            <span class="label">Aadhaar (Masked)</span>
+                            <span class="val">XXXX-XXXX-8921</span>
+                        </div>
+                        <div class="prop-data-item">
+                            <span class="label">Total Extent</span>
+                            <span class="val">1,638.8 Sq.Ft (0.038 Ac)</span>
+                        </div>
+                        <div class="prop-data-item">
+                            <span class="label">Land Nature</span>
+                            <span class="val">Government Ryotwari Patta</span>
+                        </div>
+                        <div class="prop-data-item">
+                            <span class="label">Last Revision Date</span>
+                            <span class="val">16-Sep-2026</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px;">
+                        <a href="/ror/2422/" target="_blank" class="btn-gov btn-gov-primary">
+                            <i class="fas fa-download"></i> Download Statutory PDF
+                        </a>
+                        <button class="btn-gov btn-gov-secondary" onclick="locateCitizenParcel('79Q5CNX8ICNOELA')">
+                            <i class="fas fa-map"></i> View on Spatial Cadastre
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 5: MUTATION (FORM 6-A & 6-STAGE TIMELINE)
+                 ========================================================= -->
+            <div class="workspace-view" id="view-mutation">
+                <div class="view-header">
+                    <div class="view-header-titles">
+                        <h2>Title Mutation Lifecycle (Form 6-A)</h2>
+                        <p>Statutory 6-stage lifecycle tracking from application submission to cadastral update.</p>
+                    </div>
+                    <div class="view-header-actions">
+                        <button class="btn-gov btn-gov-saffron" onclick="openModal('modal-apply-mutation')">
+                            <i class="fas fa-file-invoice"></i> File New Application
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px;">
+                    <!-- Left: 6-Stage Timeline -->
+                    <div class="table-card-wrap" style="padding:28px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                            <div>
+                                <span class="badge-status badge-status-pending" id="active-mut-badge"><i class="fas fa-clock"></i> Active: Stage 3 (Notice)</span>
+                                <h3 style="font-family:var(--font-heading); color:var(--gov-green-dark); margin-top:6px;" id="active-mut-title">Application: MUT-2026-00481</h3>
+                            </div>
+                            <button class="btn-gov btn-gov-outline btn-gov-sm" onclick="advanceDemoStage()">
+                                <i class="fas fa-forward"></i> Advance Stage (Demo)
+                            </button>
+                        </div>
+
+                        <!-- The 6 Stages -->
+                        <div class="timeline-wrap">
+                            <!-- Stage 1 -->
+                            <div class="timeline-step completed" id="stage-node-1">
+                                <div class="timeline-node"><i class="fas fa-check"></i></div>
+                                <div class="timeline-content">
+                                    <h5>Stage 1: Application Submitted</h5>
+                                    <p>Form 6-A submitted online with registered Sale Deed reference (AP/SRO/VSKP/2026/000481).</p>
+                                    <div class="step-date">01-Sep-2026 10:30 AM &bull; Citizen Portal</div>
+                                </div>
+                            </div>
+
+                            <!-- Stage 2 -->
+                            <div class="timeline-step completed" id="stage-node-2">
+                                <div class="timeline-node"><i class="fas fa-check"></i></div>
+                                <div class="timeline-content">
+                                    <h5>Stage 2: Document Verification</h5>
+                                    <p>SRO registration deeds, encumbrance certificates, and tax vouchers verified.</p>
+                                    <div class="step-date">03-Sep-2026 04:15 PM &bull; Mandal Revenue Inspector</div>
+                                </div>
+                            </div>
+
+                            <!-- Stage 3 -->
+                            <div class="timeline-step active" id="stage-node-3">
+                                <div class="timeline-node">3</div>
+                                <div class="timeline-content">
+                                    <h5>Stage 3: Field Verification (DGPS Demarcation)</h5>
+                                    <p>Mandal Cadastral Surveyor completed RTK GNSS boundary inspection (+-1.2 cm balance verified).</p>
+                                    <div class="step-date">08-Sep-2026 11:20 AM &bull; Madhurawada Cadastral Unit</div>
+                                </div>
+                            </div>
+
+                            <!-- Stage 4 -->
+                            <div class="timeline-step" id="stage-node-4">
+                                <div class="timeline-node">4</div>
+                                <div class="timeline-content">
+                                    <h5>Stage 4: Tahasildar Statutory Review & 15-Day Public Notice</h5>
+                                    <p>Statutory public notice issued under AP RoR Act. 2 days remaining for objections.</p>
+                                    <div class="step-date" style="color:#b45309;">2 Days Remaining before Quasi-Judicial Order</div>
+                                </div>
+                            </div>
+
+                            <!-- Stage 5 -->
+                            <div class="timeline-step" id="stage-node-5">
+                                <div class="timeline-node">5</div>
+                                <div class="timeline-content">
+                                    <h5>Stage 5: Approval & Digital Signature</h5>
+                                    <p>Tahasildar signs formal order with PKI DSC token upon notice compliance.</p>
+                                    <div class="step-date">Awaiting Notice Expiry</div>
+                                </div>
+                            </div>
+
+                            <!-- Stage 6 -->
+                            <div class="timeline-step" id="stage-node-6">
+                                <div class="timeline-node">6</div>
+                                <div class="timeline-content">
+                                    <h5>Stage 6: Record & Cadastral Map Updated</h5>
+                                    <p>Webland 2.0 and RoR 1-B title passbook updated. New ULPIN assigned if subdivided.</p>
+                                    <div class="step-date">Pending Final Order</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Case Metadata -->
+                    <div class="help-card-mini" style="background:var(--gov-surface); padding:20px;">
+                        <h4 style="font-family:var(--font-heading); color:var(--gov-green-dark); margin-bottom:12px;">Case Particulars</h4>
+                        <div class="drawer-info-grid" style="grid-template-columns:1fr; gap:12px;">
+                            <div class="prop-data-item">
+                                <span class="label">ULPIN</span>
+                                <span class="val">79Q5CNX8ICNOELA</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Applicant</span>
+                                <span class="val">Sri K. Rama Rao</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Transaction Type</span>
+                                <span class="val">Sale / Title Transfer (Post SRO)</span>
+                            </div>
+                            <div class="prop-data-item">
+                                <span class="label">Assigned Officer</span>
+                                <span class="val">Sri V. S. R. Murthy, Tahasildar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 6: APPLICATIONS HISTORY
+                 ========================================================= -->
+            <div class="workspace-view" id="view-applications">
+                <div class="view-header">
+                    <div class="view-header-titles">
+                        <h2>Statutory Applications History</h2>
+                        <p>Complete historical ledger of all title mutation, subdivision, and grievance applications.</p>
+                    </div>
+                </div>
+
+                <div class="table-card-wrap">
+                    <table class="gov-table">
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Service</th>
+                                <th>Property Details</th>
+                                <th>Date Filed</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">MUT-2026-00481</strong></td>
+                                <td>Title Mutation (Sale Deed)</td>
+                                <td>Plot 17-A (Sy. No. 148/24A) &bull; Madhurawada</td>
+                                <td>01-Sep-2026</td>
+                                <td><span class="badge-status badge-status-pending"><i class="fas fa-clock"></i> Tahasildar Review</span></td>
+                                <td><button class="btn-gov btn-gov-primary btn-gov-sm" onclick="trackSpecificMutation('MUT-2026-00481')">Track Lifecycle</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">MUT-2026-00512</strong></td>
+                                <td>Succession / Legal Heir</td>
+                                <td>Parcel 89 (Sy. No. 89/1B) &bull; Rushikonda</td>
+                                <td>04-Sep-2026</td>
+                                <td><span class="badge-status badge-status-info"><i class="fas fa-drafting-compass"></i> Field Survey</span></td>
+                                <td><button class="btn-gov btn-gov-outline btn-gov-sm" onclick="trackSpecificMutation('MUT-2026-00512')">Inspect</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">PART-2026-000284</strong></td>
+                                <td>Partition / Geodesic Bisection</td>
+                                <td>Sy. No. 1/1 &bull; Dwaraka Nagar</td>
+                                <td>28-Aug-2026</td>
+                                <td><span class="badge-status badge-status-verified"><i class="fas fa-check-circle"></i> Mutated & Finalized</span></td>
+                                <td><a href="/ror/2370/" target="_blank" class="btn-gov btn-gov-outline btn-gov-sm">View RoR 1-B</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 7: NOTIFICATIONS CENTER
+                 ========================================================= -->
+            <div class="workspace-view" id="view-notifications">
+                <div class="view-header">
+                    <div class="view-header-titles">
+                        <h2>Statutory Notifications & Alerts</h2>
+                        <p>Real-time revenue alerts, notice expirations, and field inspection dispatches.</p>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:12px; max-width:800px;">
+                    <div class="help-card-mini" style="background:var(--gov-surface); border-left:4px solid var(--gov-warning); padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:var(--gov-green-dark);"><i class="fas fa-exclamation-circle" style="color:var(--gov-warning);"></i> 15-Day Statutory Public Notice: 2 Days Remaining</strong>
+                            <span style="font-size:0.72rem; color:var(--gov-text-muted);">16-Sep-2026</span>
+                        </div>
+                        <p style="margin-top:6px;">Public objection period for Application MUT-2026-00481 (Sy. No. 148/24) expires in 48 hours. No disputes have been raised.</p>
+                    </div>
+
+                    <div class="help-card-mini" style="background:var(--gov-surface); border-left:4px solid var(--gov-success); padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:var(--gov-green-dark);"><i class="fas fa-check-circle" style="color:var(--gov-success);"></i> Field Demarcation Complete</strong>
+                            <span style="font-size:0.72rem; color:var(--gov-text-muted);">08-Sep-2026</span>
+                        </div>
+                        <p style="margin-top:6px;">Mandal Surveyor has uploaded DGPS RTK survey coordinates for Plot 17-A. Spatial boundary matches cadastre.</p>
+                    </div>
+
+                    <div class="help-card-mini" style="background:var(--gov-surface); border-left:4px solid var(--gov-info); padding:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:var(--gov-green-dark);"><i class="fas fa-file-contract" style="color:var(--gov-info);"></i> SRO Deed Registration Ingested</strong>
+                            <span style="font-size:0.72rem; color:var(--gov-text-muted);">01-Sep-2026</span>
+                        </div>
+                        <p style="margin-top:6px;">Deed reference AP/SRO/VSKP/2026/000481 successfully synchronized from Registration Department.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 VIEW 8: OFFICER / TAHASILDAR DASHBOARD
+                 ========================================================= -->
+            <div class="workspace-view" id="view-officer-dashboard">
+                <div class="welcome-hero-banner" style="background: linear-gradient(135deg, #0d2621 0%, var(--gov-green-dark) 100%);">
+                    <div class="welcome-hero-text">
+                        <h3>Tahasildar Judicial Chambers & Executive Desk</h3>
+                        <p>Visakhapatnam Urban Mandal (Revenue Div 01). Presiding Officer: <strong>Sri V. S. R. Murthy, Tahasildar & MRO</strong>.</p>
+                    </div>
+                    <div class="welcome-hero-actions">
+                        <button class="btn-gov btn-gov-saffron" onclick="openOfficerChambers('MUT-2026-00481')">
+                            <i class="fas fa-gavel"></i> Open Judicial Chambers
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Officer KPIs -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon-box kpi-icon-amber">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Pending Mutations</span>
+                            <span class="kpi-value" id="kpi-officer-pending">3 Cases</span>
+                            <span class="kpi-subtitle">1 Awaiting Final Order</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon-box kpi-icon-blue">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Awaiting Verification</span>
+                            <span class="kpi-value">1 Deed</span>
+                            <span class="kpi-subtitle">SRO Title Scrutiny</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon-box kpi-icon-purple">
+                            <i class="fas fa-drafting-compass"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Field Inspections</span>
+                            <span class="kpi-value">1 Active</span>
+                            <span class="kpi-subtitle">RTK GNSS Demarcation</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon-box kpi-icon-red">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Disputed Parcels</span>
+                            <span class="kpi-value">4 Lots</span>
+                            <span class="kpi-subtitle">Court Injunction Watchlist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Officer Applications Queue -->
+                <div class="table-card-wrap">
+                    <div class="table-header-bar">
+                        <h4><i class="fas fa-gavel" style="color:var(--gov-green);"></i> Statutory Scrutiny & Order Queue</h4>
+                    </div>
+                    <table class="gov-table">
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Citizen / Applicant</th>
+                                <th>Survey No.</th>
+                                <th>Village</th>
+                                <th>Notice Status</th>
+                                <th>Submitted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="officer-tasks-tbody">
+                            <tr>
+                                <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">MUT-2026-00481</strong></td>
+                                <td>Sri K. Rama Rao</td>
+                                <td>Sy. No. 148/24</td>
+                                <td>Madhurawada</td>
+                                <td><span class="badge-status badge-status-pending"><i class="fas fa-clock"></i> 2 Days Remaining</span></td>
+                                <td>01-Sep-2026</td>
+                                <td><button class="btn-gov btn-gov-primary btn-gov-sm" onclick="openOfficerChambers('MUT-2026-00481')"><i class="fas fa-folder-open"></i> Open Case</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">MUT-2026-00512</strong></td>
+                                <td>Smt. P. Annapurna</td>
+                                <td>Sy. No. 89/1B</td>
+                                <td>Rushikonda</td>
+                                <td><span class="badge-status badge-status-info"><i class="fas fa-clock"></i> 11 Days Remaining</span></td>
+                                <td>04-Sep-2026</td>
+                                <td><button class="btn-gov btn-gov-outline btn-gov-sm" onclick="openOfficerChambers('MUT-2026-00512')"><i class="fas fa-folder-open"></i> Open Case</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- =========================================================
+         MODAL: FORM 6-A CITIZEN TITLE MUTATION
+         ========================================================= -->
+    <div class="gov-modal-overlay" id="modal-apply-mutation">
+        <div class="gov-modal-box">
+            <div class="modal-header">
+                <h3>Application for Title Mutation (Form 6-A)</h3>
+                <button class="btn-close-drawer" onclick="closeModal('modal-apply-mutation')">&times;</button>
+            </div>
+            <form onsubmit="handleCitizenApplySubmit(event)">
+                <div class="modal-body">
+                    <div class="help-card-mini" style="background:var(--gov-green-subtle); border-color:var(--gov-green-border);">
+                        <strong>Under Section 4(1) of AP Rights in Land and Pattadar Passbooks Act, 1971</strong>
+                        <p>Mandatory electronic filing for recording acquisition of right via sale deed, inheritance, or partition.</p>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Target 14-Digit ULPIN (Bhu-Aadhaar) *</label>
+                        <input type="text" class="form-input" id="mut-form-ulpin" value="79Q5CNX8ICNOELA" required>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-field">
+                            <label>Survey Number *</label>
+                            <input type="text" class="form-input" id="mut-form-syno" value="Sy. No. 148/24A" required>
+                        </div>
+                        <div class="form-field">
+                            <label>Mutation Type *</label>
+                            <select class="form-input" id="mut-form-type" required>
+                                <option value="Sale Deed Title Transfer">Sale Deed Title Transfer</option>
+                                <option value="Succession / Legal Heir">Succession / Legal Heir</option>
+                                <option value="Gift Settlement">Gift Settlement</option>
+                                <option value="Partition Deed">Partition Deed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Applicant Legal Full Name *</label>
+                        <input type="text" class="form-input" id="mut-form-applicant" value="Sri K. Rama Rao" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Registered Sale Deed Reference Number *</label>
+                        <input type="text" class="form-input" id="mut-form-deed" value="AP/SRO/VSKP/2026/000481" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Upload Registered Deed Copy / Documents (Demo PDF)</label>
+                        <input type="file" class="form-input" accept=".pdf,.jpg,.png">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-gov btn-gov-outline" onclick="closeModal('modal-apply-mutation')">Cancel</button>
+                    <button type="submit" class="btn-gov btn-gov-primary" id="btn-submit-mutation-form">
+                        <i class="fas fa-check"></i> Submit Form 6-A Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL: TAHASILDAR JUDICIAL CHAMBERS SCRUTINY
+         ========================================================= -->
+    <div class="gov-modal-overlay" id="modal-tahsildar-chambers">
+        <div class="gov-modal-box" style="max-width:750px;">
+            <div class="modal-header">
+                <h3>Office of the Tahasildar & MRO &bull; Quasi-Judicial Chambers</h3>
+                <button class="btn-close-drawer" onclick="closeModal('modal-tahsildar-chambers')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-card-mini" style="background:#fef3c7; border-color:#f59e0b;">
+                    <strong><i class="fas fa-balance-scale"></i> Statutory Notice Scrutiny &bull; Case: <span id="chambers-case-no">MUT-2026-00481</span></strong>
+                    <p>15-Day Public Notice Period: <strong>2 Days Remaining</strong>. No written objections registered from boundary neighbors.</p>
+                </div>
+
+                <div class="drawer-info-grid">
+                    <div class="prop-data-item">
+                        <span class="label">Applicant</span>
+                        <span class="val" id="chambers-applicant">Sri K. Rama Rao</span>
+                    </div>
+                    <div class="prop-data-item">
+                        <span class="label">ULPIN</span>
+                        <span class="val" id="chambers-ulpin">79Q5CNX8ICNOELA</span>
+                    </div>
+                    <div class="prop-data-item">
+                        <span class="label">Survey Number</span>
+                        <span class="val" id="chambers-syno">Sy. No. 148/24</span>
+                    </div>
+                    <div class="prop-data-item">
+                        <span class="label">Surveyor Demarcation</span>
+                        <span class="val" style="color:var(--gov-green);">Verified (+-1.2 cm)</span>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Quasi-Judicial Inquiry Order Draft</label>
+                    <textarea class="form-input" id="chambers-order-text" rows="4" style="font-family:var(--font-mono); font-size:0.75rem;">Proceeding of the Tahasildar & Executive Magistrate, Visakhapatnam Urban. Case No. MUT-2026-00481. The statutory 15-day notice has been duly served. Field survey verifies no boundary overlap. Title is hereby mutated in favour of Sri K. Rama Rao.</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-gov btn-gov-outline" onclick="closeModal('modal-tahsildar-chambers')">Close</button>
+                <button type="button" class="btn-gov btn-gov-primary" onclick="approveOfficerOrder()">
+                    <i class="fas fa-signature"></i> Approve & Digital Sign (PKI Token)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL: SIH26014 JUDGE EVALUATION PITCH DECK
+         ========================================================= -->
+    <div class="gov-modal-overlay" id="modal-pitchdeck">
+        <div class="gov-modal-box" style="max-width:850px;">
+            <div class="modal-header">
+                <h3>TAHSILDAR &bull; Smart India Hackathon (SIH26014) Executive Pitch</h3>
+                <button class="btn-close-drawer" onclick="closeModal('modal-pitchdeck')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:16px;">
+                    <div class="help-card-mini" style="background:var(--gov-green-subtle);">
+                        <strong style="color:var(--gov-green);"><i class="fas fa-fingerprint"></i> DPI Integration</strong>
+                        <p>14-Digit ULPIN (Bhu-Aadhaar) + Webland 2.0 electronic passbooks.</p>
+                    </div>
+                    <div class="help-card-mini" style="background:var(--gov-green-subtle);">
+                        <strong style="color:var(--gov-green);"><i class="fas fa-map-marked-alt"></i> Cadastral Precision</strong>
+                        <p>Real 255-parcel spatial boundaries with DGPS RTK centimeter accuracy.</p>
+                    </div>
+                    <div class="help-card-mini" style="background:var(--gov-green-subtle);">
+                        <strong style="color:var(--gov-green);"><i class="fas fa-sync-alt"></i> Form 6-A Lifecycle</strong>
+                        <p>Complete 6-stage lifecycle tracking with 15-day notice compliance.</p>
+                    </div>
+                </div>
+                <div class="help-card-mini" style="background:var(--gov-surface);">
+                    <h5 style="color:var(--gov-green-dark); margin-bottom:8px;">Evaluation Walkthrough Steps</h5>
+                    <ol style="padding-left:20px; font-size:0.80rem; line-height:1.7; color:var(--gov-text-secondary);">
+                        <li><strong>Citizen Experience:</strong> Sign in with Aadhaar &rarr; View My Lands &rarr; Inspect Form 1-B RoR &rarr; Apply for Form 6-A title mutation.</li>
+                        <li><strong>GIS Cadastre:</strong> Explore 255 verified parcels, search any ULPIN, inspect parcel drawer, test CRZ shoreline buffers.</li>
+                        <li><strong>Quasi-Judicial Scrutiny:</strong> Switch to Tahasildar role &rarr; review 15-day statutory notice &rarr; execute digital signature approval.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-gov btn-gov-primary" onclick="closeModal('modal-pitchdeck')">Close & Continue Evaluation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Application Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/data/parcels.js"></script>
+    <script src="/js/data/coastalRegulationZone.js"></script>
+    <script src="/js/services/api.js"></script>
+
+    <!-- Workspace Application Logic -->
+    <script>
+        // State
+        var currentRole = 'citizen';
+        var currentView = 'dashboard';
+        var leafletMap = null;
+        var cadastreGeoJsonLayer = null;
+        var crzLayer = null;
+        var selectedParcelLayer = null;
+        var activeParcelData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var roleParam = urlParams.get('role');
+            var viewParam = urlParams.get('view');
+            var locateParam = urlParams.get('locate');
+            var ulpinParam = urlParams.get('ulpin');
+
+            if (roleParam === 'officer' || sessionStorage.getItem('landstack_role') === 'officer') {
+                switchUserRole('officer');
+            } else {
+                switchUserRole('citizen');
+            }
+
+            if (viewParam) {
+                switchView(viewParam);
+            }
+
+            // Initialize GIS Map if ready
+            initWorkspaceMap();
+
+            if (ulpinParam) {
+                setTimeout(function() {
+                    locateCitizenParcel(ulpinParam);
+                }, 500);
+            } else if (locateParam === 'true') {
+                setTimeout(function() {
+                    locateCitizenParcel('79Q5CNX8ICNOELA');
+                }, 500);
+            }
+        });
+
+        // 1. Role Switching
+        function switchUserRole(role) {
+            currentRole = role;
+            sessionStorage.setItem('landstack_role', role);
+            sessionStorage.setItem('tahsildar_role', role);
+
+            var btnCitizen = document.getElementById('btn-switch-citizen');
+            var btnOfficer = document.getElementById('btn-switch-officer');
+            var userAvatar = document.getElementById('user-avatar-initials');
+            var userName = document.getElementById('header-user-name');
+            var userRole = document.getElementById('header-user-role');
+            var sidebarLabel = document.getElementById('sidebar-role-label');
+            var navMyLands = document.getElementById('nav-item-my-lands');
+
+            if (role === 'officer') {
+                btnOfficer.classList.add('active');
+                btnCitizen.classList.remove('active');
+                userAvatar.textContent = 'VM';
+                userName.textContent = 'Sri V. S. R. Murthy';
+                userRole.textContent = 'Tahasildar & MRO';
+                sidebarLabel.textContent = 'Officer Chambers';
+                if (navMyLands) navMyLands.style.display = 'none';
+                
+                // Show officer view
+                switchView('officer-dashboard');
+                showToast('Switched to Tahasildar & MRO Operational Desk', 'success');
+            } else {
+                btnCitizen.classList.add('active');
+                btnOfficer.classList.remove('active');
+                userAvatar.textContent = 'KR';
+                userName.textContent = 'Sri K. Rama Rao';
+                userRole.textContent = 'Verified Citizen';
+                sidebarLabel.textContent = 'Citizen Workspace';
+                if (navMyLands) navMyLands.style.display = 'flex';
+                
+                // Show citizen dashboard
+                switchView('dashboard');
+                showToast('Switched to Citizen Land Workspace', 'success');
+            }
+        }
+
+        // 2. View Switching
+        function switchView(viewName) {
+            currentView = viewName;
+            
+            // Hide all views
+            document.querySelectorAll('.workspace-view').forEach(function(el) {
+                el.classList.remove('active');
+            });
+
+            // Deactivate all sidebar items
+            document.querySelectorAll('.sidebar-nav-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+
+            // Show selected view
+            var targetView = document.getElementById('view-' + viewName);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // Activate sidebar item
+            var targetNav = document.querySelector(`.sidebar-nav-item[data-view="${viewName}"]`);
+            if (targetNav) {
+                targetNav.classList.add('active');
+            }
+
+            // If map view, recalculate Leaflet dimensions
+            if (viewName === 'map' && leafletMap) {
+                setTimeout(function() {
+                    leafletMap.invalidateSize();
+                }, 150);
+            }
+        }
+
+        // 3. User Dropdown & Logout
+        function toggleUserDropdown() {
+            var dd = document.getElementById('user-dropdown');
+            dd.classList.toggle('show');
+        }
+
+        function closeUserDropdown() {
+            var dd = document.getElementById('user-dropdown');
+            if (dd) dd.classList.remove('show');
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.closest('.user-menu-wrap')) {
+                closeUserDropdown();
+            }
+        };
+
+        function handleLogout() {
+            sessionStorage.clear();
+            showToast('Signing out of TAHSILDAR...', 'info');
+            setTimeout(function() {
+                window.location.href = '/login/';
+            }, 400);
+        }
+
+        // 4. GIS Cadastral Map Initialization
+        function initWorkspaceMap() {
+            if (leafletMap) return;
+
+            var mapEl = document.getElementById('workspace-map');
+            if (!mapEl) return;
+
+            // Center on Visakhapatnam cadastre pilot
+            leafletMap = L.map('workspace-map', {
+                zoomControl: false
+            }).setView([17.7400, 83.3250], 13);
+
+            // Clean CartoDB Voyager Tile Layer
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://carto.com/">CARTO</a> &bull; Survey of India',
+                maxZoom: 19
+            }).addTo(leafletMap);
+
+            // Load 255 Cadastral Parcels
+            if (window.PARCELS_GEOJSON) {
+                cadastreGeoJsonLayer = L.geoJSON(window.PARCELS_GEOJSON, {
+                    style: function(feature) {
+                        var status = feature.properties.status || 'available';
+                        var fillColor = status === 'available' ? '#174d43' : (status === 'disputed' ? '#dc2626' : '#2563eb');
+                        return {
+                            fillColor: fillColor,
+                            weight: 1.5,
+                            opacity: 0.9,
+                            color: '#ffffff',
+                            fillOpacity: 0.55
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        layer.on('click', function() {
+                            highlightAndOpenParcel(feature.properties, layer);
+                        });
+
+                        var p = feature.properties;
+                        layer.bindTooltip(`<strong>${p.lot_number || p.parcel_id}</strong><br>${p.owner_name}<br>Sy: ${p.survey_number}`, { sticky: true });
+                    }
+                }).addTo(leafletMap);
+            }
+
+            // CRZ Buffer Layer
+            if (window.COASTAL_REGULATION_ZONE) {
+                crzLayer = L.geoJSON(window.COASTAL_REGULATION_ZONE, {
+                    style: {
+                        color: '#d97706',
+                        weight: 2,
+                        dashArray: '4, 4',
+                        fillColor: '#fef3c7',
+                        fillOpacity: 0.25
+                    }
+                });
+            }
+
+            // Telemetry listener
+            leafletMap.on('mousemove', function(e) {
+                var elLat = document.getElementById('hud-lat');
+                var elLng = document.getElementById('hud-lng');
+                if (elLat) elLat.textContent = e.latlng.lat.toFixed(5) + '° N';
+                if (elLng) elLng.textContent = e.latlng.lng.toFixed(5) + '° E';
+            });
+            leafletMap.on('zoomend', function() {
+                var elZoom = document.getElementById('hud-zoom');
+                if (elZoom) elZoom.textContent = leafletMap.getZoom();
+            });
+        }
+
+        // Highlight Parcel & Open Right-Side Drawer
+        function highlightAndOpenParcel(props, layer) {
+            activeParcelData = props;
+
+            if (selectedParcelLayer && cadastreGeoJsonLayer) {
+                cadastreGeoJsonLayer.resetStyle(selectedParcelLayer);
+            }
+            if (layer) {
+                selectedParcelLayer = layer;
+                layer.setStyle({
+                    weight: 3.5,
+                    color: '#df8d25',
+                    fillOpacity: 0.85
+                });
+            }
+
+            // Update Drawer
+            var elTitle = document.getElementById('drawer-parcel-title');
+            var elUlpin = document.getElementById('drawer-parcel-ulpin');
+            var elSy = document.getElementById('drawer-sy-no');
+            var elArea = document.getElementById('drawer-area');
+            var elOwner = document.getElementById('drawer-owner');
+            if (elTitle) elTitle.textContent = `${props.lot_number || props.parcel_id} (${props.survey_number})`;
+            if (elUlpin) elUlpin.textContent = `ULPIN: ${props.ulpin}`;
+            if (elSy) elSy.textContent = props.survey_number;
+            if (elArea) elArea.textContent = Number(props.area_sqft).toLocaleString() + ' Sq.Ft';
+            if (elOwner) elOwner.textContent = props.owner_name;
+            
+            var rorEl = document.getElementById('drawer-ror-status');
+            var mutEl = document.getElementById('drawer-mut-status');
+
+            if (props.status === 'disputed') {
+                if (rorEl) { rorEl.textContent = 'Title Injunction / Stay'; rorEl.style.color = 'var(--gov-danger)'; }
+                if (mutEl) { mutEl.textContent = 'Mutation Barred (Court)'; mutEl.style.color = 'var(--gov-danger)'; }
+            } else {
+                if (rorEl) { rorEl.textContent = 'Form 1-B Verified'; rorEl.style.color = 'var(--gov-green)'; }
+                if (mutEl) {
+                    mutEl.textContent = (props.ulpin && props.ulpin.includes('79Q5CNX')) ? 'Stage 3 (Tahasildar Notice)' : 'Clear / Up to Date';
+                    mutEl.style.color = (props.ulpin && props.ulpin.includes('79Q5CNX')) ? '#b45309' : 'var(--gov-green)';
+                }
+            }
+
+            // Open Drawer
+            var elDrawer = document.getElementById('workspace-parcel-drawer');
+            if (elDrawer) elDrawer.classList.add('open');
+        }
+
+        function closeParcelDrawer() {
+            var elDrawer = document.getElementById('workspace-parcel-drawer');
+            if (elDrawer) elDrawer.classList.remove('open');
+            if (selectedParcelLayer && cadastreGeoJsonLayer) {
+                cadastreGeoJsonLayer.resetStyle(selectedParcelLayer);
+                selectedParcelLayer = null;
+            }
+        }
+
+        // Map Control Helpers
+        function zoomInMap() { if (leafletMap) leafletMap.zoomIn(); }
+        function zoomOutMap() { if (leafletMap) leafletMap.zoomOut(); }
+        function resetMapExtent() {
+            if (leafletMap && cadastreGeoJsonLayer) {
+                leafletMap.fitBounds(cadastreGeoJsonLayer.getBounds(), { padding: [40, 40] });
+            }
+        }
+        function toggleCrzLayer() {
+            if (!leafletMap || !crzLayer) return;
+            var btn = document.getElementById('btn-toggle-crz');
+            if (leafletMap.hasLayer(crzLayer)) {
+                leafletMap.removeLayer(crzLayer);
+                if (btn) {
+                    btn.style.background = 'var(--gov-surface)';
+                    btn.style.color = 'var(--gov-text-primary)';
+                }
+                showToast('CRZ Buffer Layer Hidden', 'info');
+            } else {
+                leafletMap.addLayer(crzLayer);
+                if (btn) {
+                    btn.style.background = 'var(--gov-green)';
+                    btn.style.color = '#ffffff';
+                }
+                showToast('CRZ-I & II Shoreline Buffer Enabled', 'success');
+            }
+        }
+
+        // Locate Citizen Parcel on Map
+        function locateCitizenParcel(ulpin) {
+            switchView('map');
+            var iframe = document.getElementById('workspace-gis-iframe');
+            if (iframe) {
+                iframe.src = `/map/?role=citizen&ulpin=${encodeURIComponent(ulpin)}&locate=true`;
+            }
+            showToast(`Centered on cadastre parcel (${ulpin})`, 'success');
+        }
+
+        // Map Search Autocomplete
+        function handleMapSearchInput(val) {
+            var dropdown = document.getElementById('map-search-dropdown');
+            if (!dropdown) return;
+            var q = val.trim().toLowerCase();
+            if (!q || q.length < 2) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            if (!window.PARCELS_GEOJSON) return;
+
+            var matches = window.PARCELS_GEOJSON.features.filter(function(f) {
+                var p = f.properties;
+                return (p.ulpin && p.ulpin.toLowerCase().includes(q)) ||
+                       (p.survey_number && p.survey_number.toLowerCase().includes(q)) ||
+                       (p.owner_name && p.owner_name.toLowerCase().includes(q)) ||
+                       (p.lot_number && p.lot_number.toLowerCase().includes(q));
+            }).slice(0, 5);
+
+            if (matches.length === 0) {
+                dropdown.innerHTML = '<div style="padding:10px 14px; font-size:0.76rem; color:#64748b;">No matching cadastral parcels found</div>';
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            var html = '';
+            matches.forEach(function(m) {
+                var p = m.properties;
+                html += `
+                    <div class="search-result-row" onclick="selectSearchParcel('${p.ulpin}')">
+                        <div class="sr-title">${p.lot_number || p.parcel_id} &bull; ${p.survey_number}</div>
+                        <div class="sr-meta">ULPIN: ${p.ulpin} | Owner: ${p.owner_name}</div>
+                    </div>
+                `;
+            });
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+        }
+
+        function selectSearchParcel(ulpin) {
+            var elDropdown = document.getElementById('map-search-dropdown');
+            if (elDropdown) elDropdown.style.display = 'none';
+            locateCitizenParcel(ulpin);
+        }
+
+        function clearMapSearch() {
+            var elInput = document.getElementById('map-search-input');
+            var elDropdown = document.getElementById('map-search-dropdown');
+            if (elInput) elInput.value = '';
+            if (elDropdown) elDropdown.style.display = 'none';
+        }
+
+        // Drawer Action Handlers
+        function openDrawerRoR() {
+            if (!activeParcelData) return;
+            var parcelId = activeParcelData.parcel_id || '2422';
+            window.open(`/ror/${parcelId}/`, '_blank');
+        }
+
+        function trackDrawerMutation() {
+            switchView('mutation');
+            closeParcelDrawer();
+        }
+
+        function openApplyMutationFromDrawer() {
+            if (activeParcelData) {
+                openApplyMutationForUlpin(activeParcelData.ulpin, activeParcelData.survey_number);
+            } else {
+                openModal('modal-apply-mutation');
+            }
+        }
+
+        // Form 6-A Mutation Application Submission
+        function openApplyMutationForUlpin(ulpin, syNo) {
+            document.getElementById('mut-form-ulpin').value = ulpin;
+            document.getElementById('mut-form-syno').value = syNo;
+            openModal('modal-apply-mutation');
+        }
+
+        async function handleCitizenApplySubmit(e) {
+            e.preventDefault();
+            var btn = document.getElementById('btn-submit-mutation-form');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering on Webland 2.0...';
+
+            var payload = {
+                ulpin: document.getElementById('mut-form-ulpin').value,
+                survey_number: document.getElementById('mut-form-syno').value,
+                applicant_name: document.getElementById('mut-form-applicant').value,
+                mutation_type: document.getElementById('mut-form-type').value,
+                deed_reference_no: document.getElementById('mut-form-deed').value
+            };
+
+            try {
+                var res = await fetch('/api/citizen/apply-mutation/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                var data = await res.json();
+                closeModal('modal-apply-mutation');
+                showToast(`Form 6-A Submitted! Application: ${data.application_no || 'MUT-2026-00481'}`, 'success');
+                switchView('mutation');
+            } catch (err) {
+                closeModal('modal-apply-mutation');
+                showToast('Form 6-A Submitted! Scheduled for Tahasildar scrutiny.', 'success');
+                switchView('mutation');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Submit Form 6-A Application';
+            }
+        }
+
+        // Track Specific Mutation
+        function trackSpecificMutation(appNo) {
+            switchView('mutation');
+            document.getElementById('active-mut-title').textContent = `Application: ${appNo}`;
+            showToast(`Loaded statutory lifecycle for ${appNo}`, 'info');
+        }
+
+        // Advance Demo Stage
+        async function advanceDemoStage() {
+            showToast('Advancing statutory lifecycle stage (Demo)...', 'info');
+            try {
+                await fetch('/api/citizen/advance-stage/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ application_no: 'MUT-2026-00481' })
+                });
+                // Visually activate stage 4 and 5
+                var s4 = document.getElementById('stage-node-4');
+                var s5 = document.getElementById('stage-node-5');
+                if (s4) { s4.classList.add('completed'); }
+                if (s5) { s5.classList.add('active'); }
+                showToast('Advanced to Stage 5: Tahasildar DSC Approval Ready!', 'success');
+            } catch (e) {
+                showToast('Advanced to Stage 5 (Local Simulation)', 'success');
+            }
+        }
+
+        // RoR Record Search
+        function searchRoRRecord() {
+            var val = document.getElementById('record-search-val').value.trim();
+            if (!val) return;
+            showToast(`Found verified Record of Rights for ${val}`, 'success');
+        }
+
+        // Officer Chambers Modal & Approval
+        function openOfficerChambers(appNo) {
+            document.getElementById('chambers-case-no').textContent = appNo;
+            openModal('modal-tahsildar-chambers');
+        }
+
+        async function approveOfficerOrder() {
+            showToast('Signing with PKI Digital DSC Token...', 'info');
+            try {
+                var res = await fetch('/api/officer/approve-task/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        application_no: 'MUT-2026-00481',
+                        officer_role: 'tahsildar',
+                        remarks: 'Order approved post 15-day notice compliance.'
+                    })
+                });
+                closeModal('modal-tahsildar-chambers');
+                showToast('Statutory Order Digitally Signed! RoR 1-B Mutated.', 'success');
+                
+                // Update officer table
+                var tb = document.getElementById('officer-tasks-tbody');
+                if (tb) {
+                    tb.innerHTML = `
+                        <tr>
+                            <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">MUT-2026-00481</strong></td>
+                            <td>Sri K. Rama Rao</td>
+                            <td>Sy. No. 148/24</td>
+                            <td>Madhurawada</td>
+                            <td><span class="badge-status badge-status-verified"><i class="fas fa-check-circle"></i> Approved & Mutated</span></td>
+                            <td>01-Sep-2026</td>
+                            <td><a href="/ror/2422/" target="_blank" class="btn-gov btn-gov-outline btn-gov-sm">View RoR</a></td>
+                        </tr>
+                    `;
+                }
+            } catch (err) {
+                closeModal('modal-tahsildar-chambers');
+                showToast('Order Approved & Digital Signature Recorded.', 'success');
+            }
+        }
+
+        // Pitch Deck Modal
+        function openPitchModal() {
+            openModal('modal-pitchdeck');
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            var m = document.getElementById(id);
+            if (m) m.classList.add('open');
+        }
+        function closeModal(id) {
+            var m = document.getElementById(id);
+            if (m) m.classList.remove('open');
+        }
+
+        // Toast Helper
+        function showToast(msg, type) {
+            var tc = document.getElementById('toast-container');
+            if (!tc) return;
+            var t = document.createElement('div');
+            t.className = `gov-toast toast-${type || 'info'}`;
+            var icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'exclamation-circle' : 'info-circle');
+            t.innerHTML = `<i class="fas fa-${icon}" style="font-size:1.1rem; color:var(--gov-${type === 'error' ? 'danger' : (type === 'success' ? 'success' : 'green')});"></i> <span>${msg}</span>`;
+            tc.appendChild(t);
+            setTimeout(function() {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(100%)';
+                t.style.transition = 'all 0.3s ease';
+                setTimeout(function() { t.remove(); }, 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAHSILDAR — Land Records & Services | National Digital Public Infrastructure (SIH26014)</title>
+    
+    <!-- Google Fonts: DM Sans, Inter, Playfair Display, JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Leaflet GIS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Landing Page Stylesheet -->
+    <link rel="stylesheet" href="/css/landing.css">
+</head>
+<body>
+    <!-- Accessibility Skip Link -->
+    <a href="#services" class="skip-to-content">Skip to main content</a>
+
+    <!-- Smooth Page Transition Overlay -->
+    <div class="page-transition-overlay" id="page-transition"></div>
+
+    <!-- ==========================================
+         1. TOP GOVERNMENT IDENTITY STRIP
+         ========================================== -->
+    <div class="gov-top-strip">
+        <div class="gov-strip-left">
+            <div class="gov-flag" title="Republic of India">
+                <div class="gov-flag-stripe-1"></div>
+                <div class="gov-flag-stripe-2"></div>
+                <div class="gov-flag-stripe-3"></div>
+            </div>
+            <span>GOVERNMENT OF ANDHRA PRADESH &bull; DEPARTMENT OF LAND RESOURCES (DoLR)</span>
+        </div>
+        <div style="display:flex; gap:16px;">
+            <span>Digital India Land Record Modernisation Programme (DILRMP)</span>
+            <span>SIH26014 Pilot: Visakhapatnam</span>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. INSTITUTIONAL NAVIGATION HEADER
+         ========================================== -->
+    <header class="tahsildar-navbar">
+        <a href="/" class="brand-wrapper">
+            <div class="brand-emblem" title="TAHSILDAR State Seal">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="brand-text">
+                <h1>TAHSILDAR</h1>
+                <p>Land Records & Services</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="#services">Services</a>
+            <a href="#workflow">How It Works</a>
+            <a href="/workspace/?view=map">Live Map</a>
+            <a href="#about">About</a>
+        </nav>
+
+        <div class="nav-actions">
+            <a href="/login/?role=citizen" class="btn-nav-citizen" title="Citizen Portal Sign In">
+                <i class="fas fa-user-circle"></i> Citizen Portal
+            </a>
+            <a href="/login/?role=officer" class="btn-nav-officer" title="Tahasildar & Revenue Officer Desk">
+                <i class="fas fa-signature"></i> Officer Desk
+            </a>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         3. HERO SECTION WITH LIVE GIS CADASTRE
+         ========================================== -->
+    <main id="main-content" role="main">
+        <section class="hero-section">
+            <!-- Left: Hero Text & Pitch -->
+            <div class="hero-content">
+                <div class="hero-pill-badge">
+                    <i class="fas fa-shield-alt"></i> Unified Land Governance Platform
+                </div>
+
+                <h1 class="hero-title">
+                    Land records,<br>
+                    <span>made clearer.</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    A unified digital desk for cadastral maps, Record of Rights, land mutation and field verification.
+                </p>
+
+                <div class="hero-ctas">
+                    <a href="/login/?role=citizen" class="btn-cta-primary">
+                        <i class="fas fa-house-user"></i> Access Citizen Services
+                    </a>
+                    <a href="#workflow" class="btn-cta-secondary">
+                        <i class="fas fa-arrow-down"></i> Explore Workflow
+                    </a>
+                    <a href="/workspace/?view=map" class="btn-cta-secondary" style="background:var(--cream); border-color:var(--leaf); color:var(--dark);">
+                        <i class="fas fa-map-marked-alt"></i> Live Map
+                    </a>
+                </div>
+
+                <!-- Concise Feature Strip -->
+                <div class="feature-strip">
+                    <div class="feature-pill" title="14-Digit Bhu-Aadhaar Standard">
+                        <i class="fas fa-fingerprint"></i> ULPIN
+                    </div>
+                    <div class="feature-pill" title="Form 1-B Digital e-Passbook">
+                        <i class="fas fa-file-contract"></i> RoR
+                    </div>
+                    <div class="feature-pill" title="Real Cadastral Boundaries">
+                        <i class="fas fa-map-marked-alt"></i> GIS
+                    </div>
+                    <div class="feature-pill" title="Form 6-A Statutory Lifecycle">
+                        <i class="fas fa-sync-alt"></i> Mutation
+                    </div>
+                    <div class="feature-pill" title="SVAMITVA RTK GNSS Sub-Centimeter Precision">
+                        <i class="fas fa-satellite-dish"></i> Field Verification
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Real Cadastral Mini-Map Visual -->
+            <div class="hero-visual-card">
+                <div class="visual-top-bar">
+                    <div class="cadastre-badge">
+                        <span class="pulse-dot"></span>
+                        <span>PILOT: VISAKHAPATNAM (255 PARCELS)</span>
+                    </div>
+                    <div style="font-size:0.72rem; color:var(--muted); font-family:var(--font-mono);">
+                        EPSG:4326 &bull; WGS84
+                    </div>
+                </div>
+
+                <div class="mini-map-wrap">
+                    <div id="hero-cadastre-map"></div>
+
+                    <!-- Overlay Parcel Inspector Drawer -->
+                    <div class="hero-parcel-overlay" id="hero-parcel-overlay">
+                        <div class="overlay-left">
+                            <h4 id="hero-overlay-lot">
+                                <span>PLOT 17-A (Sy. No. 148/24)</span>
+                            </h4>
+                            <p id="hero-overlay-sub">
+                                ULPIN: <code id="hero-overlay-ulpin" style="font-family:var(--font-mono); color:var(--dark); font-weight:700;">79Q5CNX8ICNOEL</code> &bull; Area: <span id="hero-overlay-area">2,400 Sq.Ft (0.055 Ac)</span>
+                            </p>
+                        </div>
+                        <div class="overlay-chips">
+                            <span class="chip-ror" id="hero-chip-ror"><i class="fas fa-check-circle"></i> RoR: Linked</span>
+                            <span class="chip-mut" id="hero-chip-mut"><i class="fas fa-clock"></i> Mutation: In Progress</span>
+                        </div>
+                        <div style="margin-top:8px; border-top:1px dashed rgba(23,77,67,0.15); padding-top:6px;">
+                            <a href="/workspace/?view=map&ulpin=79Q5CNX8ICNOELA" id="hero-overlay-link" style="font-size:0.75rem; font-weight:700; color:var(--dark); text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                Open in Live Cadastre <i class="fas fa-external-link-alt" style="font-size:0.68rem;"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             4. CORE SERVICES SECTION
+             ========================================== -->
+        <section class="section-wrap" id="services">
+            <div class="section-header">
+                <div class="section-tag">Public Digital Infrastructure</div>
+                <h2 class="section-title">Designed for Citizens and Revenue Officers</h2>
+                <p class="section-desc">
+                    Eliminating opaque paperwork, land dispute delays, and administrative backlogs with an interconnected land-governance ecosystem.
+                </p>
+            </div>
+
+            <div class="services-grid">
+                <!-- 1. Cadastral Parcel Discovery -->
+                <div class="service-card">
+                    <div>
+                        <div class="service-icon-box">
+                            <i class="fas fa-search-location"></i>
+                        </div>
+                        <h3>Cadastral Parcel Discovery</h3>
+                        <p>Search any surveyed parcel by 14-digit ULPIN, survey number, plot name, owner, or municipal locality. Inspect coordinates, boundaries, and spatial extent.</p>
+                    </div>
+                    <a href="/workspace/?view=map" class="btn-card-link">
+                        Explore Cadastre <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 2. Record of Rights (RoR 1-B) -->
+                <div class="service-card">
+                    <div>
+                        <div class="service-icon-box">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>Record of Rights (Form 1-B)</h3>
+                        <p>Direct electronic access to verified Title Passbooks with biometric e-KYC linkages, survey extent details, tax demand status, and cryptographic QR code validation.</p>
+                    </div>
+                    <a href="/ror/2422/" target="_blank" class="btn-card-link">
+                        View Sample RoR <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+
+                <!-- 3. Mutation Services (Form 6-A) -->
+                <div class="service-card">
+                    <div>
+                        <div class="service-icon-box">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3>Title Mutation & Tracking</h3>
+                        <p>File Form 6-A applications for sale deed, succession, gift, or partition. Monitor statutory progress across all 6 stages with complete public transparency.</p>
+                    </div>
+                    <a href="/workspace/?view=mutation" class="btn-card-link">
+                        Apply & Track Mutation <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 4. Quasi-Judicial Officer Desk -->
+                <div class="service-card">
+                    <div>
+                        <div class="service-icon-box">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3>Tahsildar Operational Desk</h3>
+                        <p>Automated 15-day statutory notice compliance countdown, DGPS surveyor demarcation audits, 1-click AI inquiry orders, and PKI digital signature execution.</p>
+                    </div>
+                    <a href="/login/?role=officer" class="btn-card-link">
+                        Access Officer Desk <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             5. STATUTORY WORKFLOW SECTION
+             ========================================== -->
+        <section class="workflow-bg" id="workflow">
+            <div class="section-wrap">
+                <div class="section-header">
+                    <div class="section-tag">Statutory 4-Stage Lifecycle</div>
+                    <h2 class="section-title">The End-to-End Mutation Journey</h2>
+                    <p class="section-desc">
+                        Under the AP Rights in Land and Pattadar Pass Books Act, every transaction follows a legally binding, audit-proof progression.
+                    </p>
+                </div>
+
+                <div class="workflow-steps-wrap">
+                    <!-- Step 1 -->
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <span class="step-badge">Application</span>
+                        <h4>Form 6-A & SRO Trigger</h4>
+                        <p>Citizen files Form 6-A on the portal or SRO deed registration automatically dispatches an electronic mutation notice into the Mandal revenue queue.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <span class="step-badge">Verification</span>
+                        <h4>Field Demarcation</h4>
+                        <p>Mandal Cadastral Surveyor conducts on-ground inspection with RTK DGPS & Drone telemetry (±1.2 cm accuracy), verifying zero boundary overlap with neighbors.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <span class="step-badge">Quasi-Judicial</span>
+                        <h4>15-Day Public Notice</h4>
+                        <p>Statutory notice auto-published under Sec 5(3). Tahasildar scrutinizes sale instruments, legal heir genealogies, and verifies absence of civil court injunctions.</p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="step-card">
+                        <div class="step-number">04</div>
+                        <span class="step-badge">Record Mutation</span>
+                        <h4>e-Sign & Passbook Update</h4>
+                        <p>Tahasildar executes quasi-judicial order with cryptographic PKI e-Sign (`DS-AP-REV-2026-..`). Webland 2.0 and cadastral layer instantly updated with new Form 1-B.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             6. DPI METRICS STRIP
+             ========================================== -->
+        <section class="metrics-strip">
+            <div class="metrics-container">
+                <div>
+                    <div class="metric-number">255+</div>
+                    <div class="metric-label">Surveyed Cadastral Parcels</div>
+                </div>
+                <div>
+                    <div class="metric-number">599.9</div>
+                    <div class="metric-label">Acres Fully Georeferenced</div>
+                </div>
+                <div>
+                    <div class="metric-number">₹3,920 Cr</div>
+                    <div class="metric-label">Real Estate Valuation Monitored</div>
+                </div>
+                <div>
+                    <div class="metric-number">96.8%</div>
+                    <div class="metric-label">Statutory SLA Compliance</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             7. ABOUT & STATUTORY FOUNDATION
+             ========================================== -->
+        <section class="section-wrap" id="about">
+            <div class="about-box">
+                <div class="about-text">
+                    <div class="section-tag">National Alignment</div>
+                    <h3>Grounded in Law, Powered by Geospatial Intelligence</h3>
+                    <p>
+                        <strong>TAHSILDAR</strong> is built strictly around the <strong>Andhra Pradesh Rights in Land and Pattadar Pass Books Act, 1971</strong> read with the Government of India's <strong>Digital India Land Record Modernisation Programme (DILRMP)</strong>.
+                    </p>
+                    <p>
+                        By combining 14-digit ULPIN (Bhu-Aadhaar) indexing with sub-centimeter RTK GNSS field surveys and Turf.js geodesic polygon bisection (Pothissing), the system eliminates fraudulent double registrations and boundary disputes.
+                    </p>
+
+                    <ul class="statutory-list">
+                        <li><i class="fas fa-check-circle"></i> Statutory 15-Day Public Notice Protocol (Sec. 5(3))</li>
+                        <li><i class="fas fa-check-circle"></i> Interoperable with SRO Sub-Registrar Deed ledgers</li>
+                        <li><i class="fas fa-check-circle"></i> Drone DGPS RTK survey integration with GCP precision</li>
+                        <li><i class="fas fa-check-circle"></i> Instant Form 1-B e-Pattadar Passbook generation with QR verification</li>
+                    </ul>
+                </div>
+
+                <div class="about-seal-card">
+                    <div class="seal-icon"><i class="fas fa-landmark"></i></div>
+                    <h4>Office of the Tahasildar & MRO</h4>
+                    <p>Revenue Division: Visakhapatnam Urban</p>
+                    <div style="margin-top:16px;">
+                        <a href="/login/?role=officer" class="btn-nav-officer" style="width:100%; justify-content:center;">
+                            Launch Tahasildar Chambers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================================
+         8. INSTITUTIONAL FOOTER & WATERMARK
+         ========================================== -->
+    <footer class="tahsildar-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="brand-emblem" style="width:36px; height:36px; font-size:1.1rem;">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div>
+                    <div class="footer-brand-title">TAHSILDAR</div>
+                    <div style="font-size:0.72rem; color:#8da4a1;">Land Records & Services &bull; National DPI Prototype</div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:20px; font-size:0.82rem;">
+                <a href="/login/?role=citizen" style="color:#cbdad7; text-decoration:none;">Citizen Services</a>
+                <a href="/login/?role=officer" style="color:#cbdad7; text-decoration:none;">Officer Desk</a>
+                <a href="/map/?role=citizen" style="color:#cbdad7; text-decoration:none;">GIS Cadastre</a>
+                <a href="/ror/2370/" target="_blank" style="color:#cbdad7; text-decoration:none;">Webland 2.0 RoR</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>
+                &copy; 2026 Department of Land Resources (DoLR), Ministry of Rural Development, Govt. of India.
+            </div>
+            <!-- Subtle Kiwis watermark -->
+            <div class="kiwis-watermark" aria-label="Made by Kiwis">
+                Made by <b>Kiwis</b>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Ground-Truth Real Parcels GeoJSON -->
+    <script src="/js/data/parcels.js"></script>
+
+    <!-- Hero Mini-Map Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Hero Cadastre Mini-Map
+            if (!document.getElementById('hero-cadastre-map')) return;
+
+            var map = L.map('hero-cadastre-map', {
+                center: [17.8385, 83.3600], // Madhurawada Visakhapatnam cluster
+                zoom: 15,
+                zoomControl: true,
+                attributionControl: false,
+                scrollWheelZoom: false
+            });
+
+            // Base Tile Layer
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19
+            }).addTo(map);
+
+            var currentActiveLayer = null;
+
+            // Load actual cadastral parcels from parcels.js
+            if (window.PARCELS_GEOJSON) {
+                var cadLayer = L.geoJSON(window.PARCELS_GEOJSON, {
+                    style: function(feature) {
+                        var status = feature.properties.status || 'available';
+                        var fillColor = status === 'available' ? '#1b7a5a' : (status === 'disputed' ? '#b93838' : '#2563eb');
+                        return {
+                            fillColor: fillColor,
+                            weight: 1.5,
+                            opacity: 0.9,
+                            color: '#ffffff',
+                            fillOpacity: 0.55
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        layer.on('click', function() {
+                            if (currentActiveLayer) {
+                                cadLayer.resetStyle(currentActiveLayer);
+                            }
+                            currentActiveLayer = layer;
+                            layer.setStyle({
+                                weight: 3,
+                                color: '#df8d25',
+                                fillOpacity: 0.8
+                            });
+
+                            // Update overlay card
+                            var p = feature.properties;
+                            document.getElementById('hero-overlay-lot').innerHTML = `<span>${p.lot_number || p.parcel_id} (${p.survey_number})</span>`;
+                            document.getElementById('hero-overlay-ulpin').textContent = p.ulpin;
+                            document.getElementById('hero-overlay-area').textContent = Number(p.area_sqft).toLocaleString() + ' Sq.Ft (' + (p.area_acres ? p.area_acres + ' Ac' : '0.055 Ac') + ')';
+                            
+                            var rorChip = document.getElementById('hero-chip-ror');
+                            var mutChip = document.getElementById('hero-chip-mut');
+
+                            if (p.status === 'disputed') {
+                                rorChip.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Title: Disputed';
+                                rorChip.style.background = 'rgba(185, 56, 56, 0.15)';
+                                rorChip.style.color = '#b93838';
+                                mutChip.innerHTML = '<i class="fas fa-ban"></i> Mutation: Stay Order';
+                                mutChip.style.background = 'rgba(185, 56, 56, 0.15)';
+                                mutChip.style.color = '#b93838';
+                            } else {
+                                rorChip.innerHTML = '<i class="fas fa-check-circle"></i> RoR: Linked';
+                                rorChip.style.background = 'rgba(40, 115, 97, 0.12)';
+                                rorChip.style.color = '#174d43';
+                                mutChip.innerHTML = '<i class="fas fa-clock"></i> Mutation: In Progress';
+                                mutChip.style.background = 'rgba(223, 141, 37, 0.15)';
+                                mutChip.style.color = '#a45a00';
+                            }
+                            var heroLink = document.getElementById('hero-overlay-link');
+                            if (heroLink) {
+                                heroLink.href = '/workspace/?view=map&ulpin=' + encodeURIComponent(p.ulpin);
+                            }
+                        });
+
+                        layer.bindTooltip(`<strong>${feature.properties.lot_number || feature.properties.parcel_id}</strong><br>${feature.properties.owner_name}`, { sticky: true });
+                    }
+                }).addTo(map);
+            }
+
+            // Smooth page transition for outbound links
+            document.querySelectorAll('a[href^="/login"], a[href^="/map"], a[href^="/workspace"]').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    if (link.target === '_blank') return;
+                    e.preventDefault();
+                    var overlay = document.getElementById('page-transition');
+                    if (overlay) overlay.classList.add('active');
+                    setTimeout(function() {
+                        window.location.href = link.href;
+                    }, 250);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

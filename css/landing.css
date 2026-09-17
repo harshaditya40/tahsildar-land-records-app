@@ -1,0 +1,938 @@
+/* =========================================================
+   TAHSILDAR — LAND RECORDS & SERVICES
+   Landing Page Design System & Styles (DPI Gov-Tech Standard)
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root {
+    --dark: #174d43;
+    --dark-deep: #0f352e;
+    --leaf: #287361;
+    --leaf-light: #3d927e;
+    --ink: #183332;
+    --muted: #637473;
+    --paper: #f6f2ea;
+    --paper-card: #ffffff;
+    --line: #d7ddd2;
+    --saffron: #df8d25;
+    --saffron-hover: #c97c1d;
+    --cream: #fffdf8;
+    
+    --success: #1b7a5a;
+    --danger: #b93838;
+    --warning: #d97706;
+    
+    --font-heading: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    --shadow-soft: 0 4px 20px rgba(23, 77, 67, 0.08);
+    --shadow-card: 0 10px 30px rgba(24, 51, 50, 0.08);
+    --shadow-hover: 0 16px 40px rgba(23, 77, 67, 0.14);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* =========================================================
+   TOP GOVERNMENT BANNER & HEADER
+   ========================================================= */
+.gov-top-strip {
+    background: #0d2823;
+    color: #cbdad7;
+    font-size: 0.72rem;
+    padding: 6px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gov-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gov-flag {
+    display: inline-flex;
+    height: 12px;
+    width: 18px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.gov-flag-stripe-1 { background: #ff9933; height: 4px; }
+.gov-flag-stripe-2 { background: #ffffff; height: 4px; }
+.gov-flag-stripe-3 { background: #138808; height: 4px; }
+
+.tahsildar-navbar {
+    position: sticky;
+    top: 0;
+    background: rgba(246, 242, 234, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+}
+
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand-emblem {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--dark), var(--leaf));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.35rem;
+    box-shadow: 0 4px 12px rgba(23, 77, 67, 0.25);
+}
+
+.brand-text h1 {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--dark);
+    line-height: 1.1;
+}
+
+.brand-text p {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--leaf);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-nav-officer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1.5px solid var(--dark);
+    color: var(--dark);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-nav-officer:hover {
+    background: var(--dark);
+    color: #ffffff;
+}
+
+.btn-nav-citizen {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--saffron);
+    border: 1.5px solid var(--saffron);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(223, 141, 37, 0.3);
+}
+
+.btn-nav-citizen:hover {
+    background: var(--saffron-hover);
+    border-color: var(--saffron-hover);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   HERO SECTION WITH CADASTRE VISUAL
+   ========================================================= */
+.hero-section {
+    padding: 50px 32px 40px 32px;
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.08fr;
+    gap: 48px;
+    align-items: center;
+}
+
+.hero-content {
+    padding-right: 10px;
+}
+
+.hero-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(40, 115, 97, 0.1);
+    border: 1px solid rgba(40, 115, 97, 0.25);
+    color: var(--dark);
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 20px;
+}
+
+.hero-title {
+    font-family: var(--font-heading);
+    font-size: 3.4rem;
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -1.2px;
+    color: var(--dark-deep);
+    margin-bottom: 18px;
+}
+
+.hero-title span {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-style: italic;
+    color: var(--leaf);
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.55;
+    color: #3b5250;
+    margin-bottom: 30px;
+    max-width: 520px;
+}
+
+.hero-ctas {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+}
+
+.btn-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 14px 26px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 6px 18px rgba(23, 77, 67, 0.25);
+}
+
+.btn-cta-primary:hover {
+    background: var(--leaf);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(23, 77, 67, 0.35);
+}
+
+.btn-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-cta-secondary:hover {
+    border-color: var(--dark);
+    color: var(--dark);
+}
+
+/* Feature Strip */
+.feature-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+}
+
+.feature-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.feature-pill i {
+    color: var(--leaf);
+}
+
+/* =========================================================
+   HERO CADASTRE VISUAL CONTAINER
+   ========================================================= */
+.hero-visual-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    position: relative;
+}
+
+.visual-top-bar {
+    background: #fcfbf9;
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cadastre-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.cadastre-badge span.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+.mini-map-wrap {
+    height: 380px;
+    width: 100%;
+    position: relative;
+    background: #e2e8f0;
+}
+
+#hero-cadastre-map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Overlay Cadastre Drawer on Hero */
+.hero-parcel-overlay {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 500;
+}
+
+.overlay-left h4 {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--dark-deep);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.overlay-left p {
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.overlay-chips {
+    display: flex;
+    gap: 8px;
+}
+
+.chip-ror {
+    background: rgba(40, 115, 97, 0.12);
+    color: var(--dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.chip-mut {
+    background: rgba(223, 141, 37, 0.15);
+    color: #a45a00;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* =========================================================
+   SERVICES SECTION
+   ========================================================= */
+.section-wrap {
+    padding: 70px 32px;
+    max-width: 1320px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 50px auto;
+}
+
+.section-tag {
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--leaf);
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-family: var(--font-heading);
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: var(--dark-deep);
+    line-height: 1.18;
+    margin-bottom: 12px;
+}
+
+.section-desc {
+    font-size: 0.98rem;
+    color: var(--muted);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.service-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 26px 22px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--leaf);
+}
+
+.service-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    background: rgba(40, 115, 97, 0.1);
+    color: var(--leaf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+}
+
+.service-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--dark-deep);
+    margin-bottom: 8px;
+}
+
+.service-card p {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.btn-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--leaf);
+    text-decoration: none;
+    margin-top: auto;
+    transition: gap 0.2s;
+}
+
+.btn-card-link:hover {
+    color: var(--dark);
+    gap: 10px;
+}
+
+/* =========================================================
+   WORKFLOW SECTION (HOW IT WORKS)
+   ========================================================= */
+.workflow-bg {
+    background: #ede8dc;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.workflow-steps-wrap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    position: relative;
+}
+
+.step-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+}
+
+.step-number {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--leaf);
+    opacity: 0.45;
+    margin-bottom: 8px;
+}
+
+.step-card h4 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--dark-deep);
+    margin-bottom: 6px;
+}
+
+.step-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(23, 77, 67, 0.08);
+    color: var(--dark);
+    margin-bottom: 10px;
+}
+
+.step-card p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* =========================================================
+   METRICS & DPI IMPACT STRIP
+   ========================================================= */
+.metrics-strip {
+    background: var(--dark);
+    color: #ffffff;
+    padding: 40px 32px;
+}
+
+.metrics-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    text-align: center;
+}
+
+.metric-number {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.metric-label {
+    font-size: 0.82rem;
+    color: #b7cbca;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* =========================================================
+   ABOUT & STATUTORY AUTHORITY SECTION
+   ========================================================= */
+.about-box {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-card);
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.about-text h3 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--dark-deep);
+    margin-bottom: 14px;
+}
+
+.about-text p {
+    font-size: 0.92rem;
+    color: #475d5a;
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+
+.statutory-list {
+    list-style: none;
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.statutory-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.86rem;
+    color: var(--ink);
+}
+
+.statutory-list li i {
+    color: var(--leaf);
+    margin-top: 4px;
+}
+
+.about-seal-card {
+    background: #f8faf8;
+    border: 1.5px dashed var(--leaf);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+}
+
+.seal-icon {
+    font-size: 3rem;
+    color: var(--dark);
+    margin-bottom: 12px;
+}
+
+.about-seal-card h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 4px;
+}
+
+.about-seal-card p {
+    font-size: 0.76rem;
+    color: var(--muted);
+}
+
+/* =========================================================
+   FOOTER & WATERMARK
+   ========================================================= */
+.tahsildar-footer {
+    background: #0f2823;
+    color: #cbdad7;
+    padding: 40px 32px 24px 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-top {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 24px;
+    margin-bottom: 20px;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.footer-brand-title {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.footer-bottom {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: #8da4a1;
+}
+
+/* Subtle Kiwis watermark */
+.kiwis-watermark {
+    font-size: 0.74rem;
+    color: #8da4a1;
+    letter-spacing: 0.4px;
+}
+
+.kiwis-watermark b {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+@media (max-width: 1024px) {
+    .hero-section {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+    .services-grid, .workflow-steps-wrap {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .about-box {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .tahsildar-navbar {
+        padding: 12px 16px;
+    }
+    .nav-links {
+        display: none;
+    }
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    .services-grid, .workflow-steps-wrap, .metrics-container {
+        grid-template-columns: 1fr;
+    }
+    .hero-ctas {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .btn-cta-primary, .btn-cta-secondary {
+        justify-content: center;
+    }
+    .footer-top, .footer-bottom {
+        flex-direction: column;
+        gap: 14px;
+        text-align: center;
+    }
+}
+
+/* =========================================================
+   ENTRANCE ANIMATIONS (Staggered Reveal)
+   ========================================================= */
+@keyframes landingFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes landingSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.hero-content {
+    animation: landingSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.1s;
+}
+
+.hero-visual-card {
+    animation: landingFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.3s;
+}
+
+.service-card {
+    animation: landingFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.service-card:nth-child(1) { animation-delay: 0.15s; }
+.service-card:nth-child(2) { animation-delay: 0.25s; }
+.service-card:nth-child(3) { animation-delay: 0.35s; }
+.service-card:nth-child(4) { animation-delay: 0.45s; }
+
+.step-card {
+    animation: landingFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.step-card:nth-child(1) { animation-delay: 0.1s; }
+.step-card:nth-child(2) { animation-delay: 0.2s; }
+.step-card:nth-child(3) { animation-delay: 0.3s; }
+.step-card:nth-child(4) { animation-delay: 0.4s; }
+
+.metrics-container > div {
+    animation: landingFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.metrics-container > div:nth-child(1) { animation-delay: 0.1s; }
+.metrics-container > div:nth-child(2) { animation-delay: 0.2s; }
+.metrics-container > div:nth-child(3) { animation-delay: 0.3s; }
+.metrics-container > div:nth-child(4) { animation-delay: 0.4s; }
+
+/* =========================================================
+   ACCESSIBILITY (Focus Rings & Skip Link)
+   ========================================================= */
+:focus-visible {
+    outline: 2px solid var(--leaf);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.skip-to-content {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    background: var(--dark);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 0 0 8px 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    z-index: 9999;
+    text-decoration: none;
+    transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+    top: 0;
+}
+
+/* =========================================================
+   SMOOTH PAGE TRANSITION OVERLAY
+   ========================================================= */
+.page-transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--dark-deep);
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.page-transition-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
