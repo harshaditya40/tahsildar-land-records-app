@@ -14,8 +14,43 @@
     
     <!-- Unified Government Design System CSS -->
     <link rel="stylesheet" href="/css/tahsildar.css">
+    <style>
+        .selected-land-card {
+            border-color: var(--gov-green) !important;
+            box-shadow: 0 4px 20px rgba(23, 77, 67, 0.16) !important;
+            background: #fcfffd !important;
+        }
+        .gov-loader-bar {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, #174d43, #df8d25);
+            border-radius: 4px;
+            animation: govIndeterminate 1.2s infinite ease-in-out;
+        }
+        @keyframes govIndeterminate {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(300%); }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Seamless Institutional Workspace Loader Overlay -->
+    <div id="workspace-loader-overlay" style="position:fixed; inset:0; background:#f8faf9; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.25s ease, visibility 0.25s ease;">
+        <div style="width:68px; height:68px; background:linear-gradient(135deg, #174d43, #0f352e); border-radius:18px; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:2rem; box-shadow:0 12px 30px rgba(15,53,46,0.25); margin-bottom:18px;">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div style="font-family:'DM Sans', sans-serif; font-weight:800; font-size:1.4rem; color:#0f352e; letter-spacing:-0.3px; margin-bottom:4px;">
+            TAHSILDAR <span style="font-size:0.75rem; background:#eef6f4; color:#174d43; border:1px solid #c8dfd9; border-radius:4px; padding:2px 6px; font-weight:700; margin-left:4px;">DPI 2.0</span>
+        </div>
+        <div style="font-family:'Inter', sans-serif; font-size:0.86rem; color:#64748b; margin-bottom:22px;">
+            Opening your land services workspace...
+        </div>
+        <div style="width:190px; height:4px; background:#e2e8f0; border-radius:4px; overflow:hidden; position:relative;">
+            <div class="gov-loader-bar"></div>
+        </div>
+    </div>
 
     <!-- ==========================================
          1. TOP GOVERNMENT IDENTITY STRIP
@@ -333,7 +368,7 @@
 
                 <div class="property-cards-grid">
                     <!-- Property 1: Madhurawada Plot 17-A -->
-                    <div class="property-card">
+                    <div class="property-card selected-land-card" id="prop-card-79Q5CNX8ICNOELA" onclick="selectCitizenProperty('79Q5CNX8ICNOELA', event)" style="cursor:pointer; transition:all 0.2s ease;">
                         <div class="property-card-top">
                             <div class="prop-title-group">
                                 <h4>Plot 17-A (Sy. No. 148/24A)</h4>
@@ -376,7 +411,7 @@
                     </div>
 
                     <!-- Property 2: Rushikonda Parcel 45 -->
-                    <div class="property-card">
+                    <div class="property-card" id="prop-card-79Q5RUS004501" onclick="selectCitizenProperty('79Q5RUS004501', event)" style="cursor:pointer; transition:all 0.2s ease;">
                         <div class="property-card-top">
                             <div class="prop-title-group">
                                 <h4>Parcel 45 (Sy. No. 145/2)</h4>
@@ -459,23 +494,23 @@
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--gov-border); padding-bottom:20px; margin-bottom:20px;">
                         <div>
                             <span class="badge-status badge-status-verified" style="margin-bottom:8px;"><i class="fas fa-check-circle"></i> Cryptographically Verified Title</span>
-                            <h3 style="font-family:var(--font-heading); color:var(--gov-green-dark); font-size:1.4rem;">Record of Rights (Form 1-B) &bull; Khata No. 1048</h3>
+                            <h3 id="ror-view-title" style="font-family:var(--font-heading); color:var(--gov-green-dark); font-size:1.4rem;">Record of Rights (Form 1-B) &bull; Khata No. 1048</h3>
                             <p style="color:var(--gov-text-muted); font-size:0.85rem;">Mandal: Visakhapatnam Urban &bull; District: Visakhapatnam &bull; State: Andhra Pradesh</p>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-family:var(--font-mono); font-weight:700; color:var(--gov-green);">ULPIN: 79Q5CNX8ICNOELA</div>
-                            <div style="font-size:0.75rem; color:var(--gov-text-muted); margin-top:4px;">Survey Sy. No. 148/24A</div>
+                            <div id="ror-view-ulpin" style="font-family:var(--font-mono); font-weight:700; color:var(--gov-green);">ULPIN: 79Q5CNX8ICNOELA</div>
+                            <div id="ror-view-survey" style="font-size:0.75rem; color:var(--gov-text-muted); margin-top:4px;">Survey Sy. No. 148/24A</div>
                         </div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-bottom:24px;">
                         <div class="prop-data-item">
                             <span class="label">Pattadar Name</span>
-                            <span class="val">Sri K. Rama Rao</span>
+                            <span class="val" id="ror-view-pattadar">Sri K. Rama Rao</span>
                         </div>
                         <div class="prop-data-item">
                             <span class="label">Father's / Husband's Name</span>
-                            <span class="val">Late K. Appa Rao</span>
+                            <span class="val" id="ror-view-father">Late K. Appa Rao</span>
                         </div>
                         <div class="prop-data-item">
                             <span class="label">Aadhaar (Masked)</span>
@@ -483,23 +518,23 @@
                         </div>
                         <div class="prop-data-item">
                             <span class="label">Total Extent</span>
-                            <span class="val">1,638.8 Sq.Ft (0.038 Ac)</span>
+                            <span class="val" id="ror-view-extent">1,638.8 Sq.Ft (0.038 Ac)</span>
                         </div>
                         <div class="prop-data-item">
                             <span class="label">Land Nature</span>
-                            <span class="val">Government Ryotwari Patta</span>
+                            <span class="val" id="ror-view-nature">Government Ryotwari Patta</span>
                         </div>
                         <div class="prop-data-item">
                             <span class="label">Last Revision Date</span>
-                            <span class="val">16-Sep-2026</span>
+                            <span class="val" id="ror-view-date">16-Sep-2026</span>
                         </div>
                     </div>
 
                     <div style="display:flex; gap:12px;">
-                        <a href="/ror/2422/" target="_blank" class="btn-gov btn-gov-primary">
+                        <a id="ror-view-download-link" href="/ror/2422/" target="_blank" class="btn-gov btn-gov-primary">
                             <i class="fas fa-download"></i> Download Statutory PDF
                         </a>
-                        <button class="btn-gov btn-gov-secondary" onclick="locateCitizenParcel('79Q5CNX8ICNOELA')">
+                        <button id="ror-view-cadastre-btn" class="btn-gov btn-gov-secondary" onclick="locateCitizenParcel('79Q5CNX8ICNOELA')">
                             <i class="fas fa-map"></i> View on Spatial Cadastre
                         </button>
                     </div>
@@ -1013,6 +1048,7 @@
             initWorkspaceMap();
 
             if (ulpinParam) {
+                selectCitizenProperty(ulpinParam);
                 setTimeout(function() {
                     locateCitizenParcel(ulpinParam);
                 }, 500);
@@ -1020,8 +1056,31 @@
                 setTimeout(function() {
                     locateCitizenParcel('79Q5CNX8ICNOELA');
                 }, 500);
+            } else {
+                var storedUlpin = sessionStorage.getItem('landstack_citizen_ulpin');
+                if (storedUlpin) {
+                    selectCitizenProperty(storedUlpin);
+                }
             }
+
+            // Auto-dismiss transition loader smoothly
+            setTimeout(dismissWorkspaceLoader, 150);
         });
+
+        function dismissWorkspaceLoader() {
+            var el = document.getElementById('workspace-loader-overlay');
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(function() {
+                    el.style.display = 'none';
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, 250);
+            }
+        }
+        window.addEventListener('load', function() {
+            setTimeout(dismissWorkspaceLoader, 100);
+        });
+        setTimeout(dismissWorkspaceLoader, 400); // Safety fallback so it never hangs
 
         // 1. Role Switching
         function switchUserRole(role) {
@@ -1276,12 +1335,90 @@
             }
         }
 
+        // Citizen Land Records Portfolio & Dynamic RoR Binding
+        var CITIZEN_LAND_RECORDS = {
+            '79Q5CNX8ICNOELA': {
+                ulpin: '79Q5CNX8ICNOELA',
+                parcelId: '2422',
+                khata: '1048',
+                survey: 'Sy. No. 148/24A',
+                plot: 'Plot 17-A',
+                village: 'Madhurawada Village',
+                extent: '1,638.8 Sq.Ft (0.038 Ac)',
+                pattadar: 'Sri K. Rama Rao',
+                father: 'Late K. Appa Rao',
+                nature: 'Government Ryotwari Patta',
+                date: '16-Sep-2026',
+                rorUrl: '/ror/2422/'
+            },
+            '79Q5RUS004501': {
+                ulpin: '79Q5RUS004501',
+                parcelId: '2370',
+                khata: '892',
+                survey: 'Sy. No. 145/2',
+                plot: 'Parcel 45',
+                village: 'Rushikonda Village',
+                extent: '5,06,358 Sq.Ft (11.62 Ac)',
+                pattadar: 'Sri K. Rama Rao',
+                father: 'Late K. Appa Rao',
+                nature: 'Patta Land (Coastal Ward)',
+                date: '12-Sep-2026',
+                rorUrl: '/ror/2370/'
+            }
+        };
+
+        function selectCitizenProperty(ulpin, e) {
+            if (e && e.target && e.target.closest('button, a')) {
+                return;
+            }
+            var rec = CITIZEN_LAND_RECORDS[ulpin] || CITIZEN_LAND_RECORDS['79Q5CNX8ICNOELA'];
+            sessionStorage.setItem('landstack_citizen_ulpin', rec.ulpin);
+            sessionStorage.setItem('landstack_citizen_parcel_id', rec.parcelId);
+
+            // Update visual selection styles
+            document.querySelectorAll('.property-card').forEach(function(c) {
+                c.classList.remove('selected-land-card');
+            });
+            var card = document.getElementById('prop-card-' + rec.ulpin);
+            if (card) card.classList.add('selected-land-card');
+
+            // Update Form 1-B Record view fields
+            var titleEl = document.getElementById('ror-view-title');
+            if (titleEl) titleEl.innerHTML = `Record of Rights (Form 1-B) &bull; Khata No. ${rec.khata}`;
+            var ulpinEl = document.getElementById('ror-view-ulpin');
+            if (ulpinEl) ulpinEl.textContent = `ULPIN: ${rec.ulpin}`;
+            var surveyEl = document.getElementById('ror-view-survey');
+            if (surveyEl) surveyEl.textContent = `Survey ${rec.survey}`;
+            var extentEl = document.getElementById('ror-view-extent');
+            if (extentEl) extentEl.textContent = rec.extent;
+            var natureEl = document.getElementById('ror-view-nature');
+            if (natureEl) natureEl.textContent = rec.nature;
+            var dateEl = document.getElementById('ror-view-date');
+            if (dateEl) dateEl.textContent = rec.date;
+            var dlLink = document.getElementById('ror-view-download-link');
+            if (dlLink) dlLink.href = rec.rorUrl;
+            var topLink = document.getElementById('ror-top-passbook-link');
+            if (topLink) topLink.href = rec.rorUrl;
+            var cadastreBtn = document.getElementById('ror-view-cadastre-btn');
+            if (cadastreBtn) cadastreBtn.onclick = function() { locateCitizenParcel(rec.ulpin); };
+            var searchInput = document.getElementById('record-search-val');
+            if (searchInput) searchInput.value = rec.ulpin;
+
+            showToast(`Selected Land: ${rec.plot} (${rec.village}) &bull; ULPIN ${rec.ulpin}`, 'success');
+        }
+
         // Locate Citizen Parcel on Map
         function locateCitizenParcel(ulpin) {
+            selectCitizenProperty(ulpin);
             switchView('map');
             var iframe = document.getElementById('workspace-gis-iframe');
             if (iframe) {
                 iframe.src = `/map/?role=citizen&ulpin=${encodeURIComponent(ulpin)}&locate=true`;
+                try {
+                    if (iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({ type: 'LOCATE_PARCEL', ulpin: ulpin }, '*');
+                    }
+                } catch(e) {}
             }
             showToast(`Centered on cadastre parcel (${ulpin})`, 'success');
         }
@@ -1430,9 +1567,13 @@
 
         // RoR Record Search
         function searchRoRRecord() {
-            var val = document.getElementById('record-search-val').value.trim();
+            var val = (document.getElementById('record-search-val').value || '').trim().toUpperCase();
             if (!val) return;
-            showToast(`Found verified Record of Rights for ${val}`, 'success');
+            if (val.includes('RUS') || val.includes('145') || val.includes('2370')) {
+                selectCitizenProperty('79Q5RUS004501');
+            } else {
+                selectCitizenProperty('79Q5CNX8ICNOELA');
+            }
         }
 
         // Officer Chambers Modal & Approval

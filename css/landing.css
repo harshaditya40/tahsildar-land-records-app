@@ -925,14 +925,89 @@ body {
 .page-transition-overlay {
     position: fixed;
     inset: 0;
-    background: var(--dark-deep);
-    z-index: 10000;
+    background: #f8faf9;
+    z-index: 100000;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .page-transition-overlay.active {
     opacity: 1;
     pointer-events: all;
+}
+
+.page-transition-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-transition-emblem {
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(135deg, #174d43, #0f352e);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 2rem;
+    box-shadow: 0 12px 30px rgba(15, 53, 46, 0.25);
+    margin-bottom: 18px;
+}
+
+.page-transition-title {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #0f352e;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+}
+
+.page-transition-badge {
+    font-size: 0.75rem;
+    background: #eef6f4;
+    color: #174d43;
+    border: 1px solid #c8dfd9;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.page-transition-msg {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.86rem;
+    color: #64748b;
+    margin-bottom: 22px;
+}
+
+.page-transition-bar {
+    width: 190px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.page-transition-progress {
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, #174d43, #df8d25);
+    border-radius: 4px;
+    animation: govIndeterminate 1.2s infinite ease-in-out;
+}
+
+@keyframes govIndeterminate {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+    100% { transform: translateX(300%); }
 }

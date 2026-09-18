@@ -35,10 +35,18 @@
         </div>
     </div>
 
-    <!-- Injected Server Role State -->
+    <!-- Injected Server Role State & Iframe Detection -->
     <script>
         window.SERVER_IS_OFFICER = false;
         window.PROMPT_OFFICER_LOGIN = false;
+        if (window.self !== window.top) {
+            document.documentElement.classList.add('is-embedded');
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.body) document.body.classList.add('is-embedded');
+                var topStrip = document.querySelector('.tahsildar-top-gov-strip');
+                if (topStrip) topStrip.style.display = 'none';
+            });
+        }
     </script>
 
     <!-- Top-Left Vertical Action Dock -->
@@ -1905,6 +1913,32 @@
         </div>
     </div>
 
+    <!-- Dedicated Floating "Your Current Location" GIS Information Card -->
+    <div id="citizen-location-card" class="gis-location-card" style="display: none;">
+        <div class="gis-loc-header">
+            <div class="gis-loc-title">
+                <i class="fas fa-street-view" style="color: #2563eb;"></i>
+                <span>Your Current Location</span>
+            </div>
+            <button class="gis-loc-close" onclick="closeCitizenLocationCard()" title="Close Location Panel">&times;</button>
+        </div>
+        <div class="gis-loc-body">
+            <div class="gis-loc-row">
+                <span class="gis-loc-label">Coordinates:</span>
+                <span class="gis-loc-val" id="gis-loc-coords">17.730200° N, 83.315000° E</span>
+            </div>
+            <div class="gis-loc-row">
+                <span class="gis-loc-label">GPS Fix:</span>
+                <span class="gis-loc-val gis-loc-fix" id="gis-loc-fix">Urban Ward Center (±45m)</span>
+            </div>
+        </div>
+        <div class="gis-loc-footer">
+            <button id="btn-nearest-parcel-card" class="btn-gis-nearest" onclick="triggerNearestParcelFromCard()">
+                <i class="fas fa-search-location"></i> View Nearest Cadastral Parcel
+            </button>
+        </div>
+    </div>
+
     <!-- Floating Global Toast Notification -->
     <div id="toast-notification" style="display: none; position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(8px); color: #ffffff; padding: 10px 22px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; z-index: 9999; box-shadow: 0 4px 25px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); pointer-events: none; transition: all 0.3s ease;"></div>
 
@@ -1918,6 +1952,9 @@
     <script src="/static/watersupply.js?v=1.0"></script>
     <script src="/static/powerGridTracks.js?v=1.0"></script>
     <script src="/static/coastalRegulationZone.js?v=1.0"></script>
+
+    <!-- Cadastral Parcels 255-Survey Bundled Dataset (Resilient Fallback) -->
+    <script src="/js/data/parcels.js"></script>
 
     <!-- Custom Map JS with Cache Buster -->
     <script src="/static/map.js?v=40.0"></script>

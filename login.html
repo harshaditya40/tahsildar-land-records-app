@@ -9,6 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="/css/auth.css">
+    <style>
+        .gov-loader-bar {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, #174d43, #df8d25);
+            border-radius: 4px;
+            animation: govIndeterminate 1.2s infinite ease-in-out;
+        }
+        @keyframes govIndeterminate {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(300%); }
+        }
+    </style>
 </head>
 <body>
 
@@ -291,10 +305,8 @@
 
             setTimeout(function() {
                 btnText.innerHTML = '<i class="fas fa-check-circle"></i> Identity verified';
-                setTimeout(function() {
-                    window.location.href = '/workspace/?role=citizen&view=dashboard';
-                }, 300);
-            }, 500);
+                showLoginTransition('/workspace/?role=citizen&view=dashboard', 'Opening your citizen workspace...');
+            }, 450);
         }
 
         async function handleOfficerSubmit(e) {
@@ -327,9 +339,7 @@
                     sessionStorage.setItem('tahsildar_role', 'tahsildar');
                     sessionStorage.setItem('officer_name', data.officer_name || 'Sri V. S. R. Murthy, Tahasildar & MRO');
                     btnText.innerHTML = '<i class="fas fa-check-circle"></i> Identity verified';
-                    setTimeout(function() {
-                        window.location.href = '/workspace/?role=officer&view=officer-dashboard';
-                    }, 400);
+                    showLoginTransition('/workspace/?role=officer&view=officer-dashboard', 'Launching Tahasildar Chambers...');
                 } else {
                     btn.disabled = false;
                     btnText.innerHTML = 'Launch Tahasildar Chambers';
@@ -343,9 +353,7 @@
                     sessionStorage.setItem('landstack_role', 'officer');
                     sessionStorage.setItem('tahsildar_role', 'tahsildar');
                     btnText.innerHTML = '<i class="fas fa-check-circle"></i> Identity verified';
-                    setTimeout(function() {
-                        window.location.href = '/workspace/?role=officer&view=officer-dashboard';
-                    }, 400);
+                    showLoginTransition('/workspace/?role=officer&view=officer-dashboard', 'Launching Tahasildar Chambers...');
                 } else {
                     btn.disabled = false;
                     btnText.innerHTML = 'Launch Tahasildar Chambers';
@@ -354,6 +362,38 @@
                 }
             }
         }
+
+        function showLoginTransition(targetUrl, statusText) {
+            var overlay = document.getElementById('login-transition-overlay');
+            if (statusText) {
+                var textEl = document.getElementById('transition-status-text');
+                if (textEl) textEl.textContent = statusText;
+            }
+            if (overlay) {
+                overlay.style.display = 'flex';
+                setTimeout(function() {
+                    overlay.style.opacity = '1';
+                }, 10);
+            }
+            setTimeout(function() {
+                window.location.href = targetUrl;
+            }, 320);
+        }
     </script>
+    <!-- Seamless Institutional Transition Overlay -->
+    <div id="login-transition-overlay" style="display:none; position:fixed; inset:0; background:#f8faf9; z-index:999999; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.25s ease;">
+        <div style="width:68px; height:68px; background:linear-gradient(135deg, #174d43, #0f352e); border-radius:18px; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:2rem; box-shadow:0 12px 30px rgba(15,53,46,0.25); margin-bottom:18px;">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div style="font-family:'DM Sans', sans-serif; font-weight:800; font-size:1.4rem; color:#0f352e; letter-spacing:-0.3px; margin-bottom:4px;">
+            TAHSILDAR <span style="font-size:0.75rem; background:#eef6f4; color:#174d43; border:1px solid #c8dfd9; border-radius:4px; padding:2px 6px; font-weight:700; margin-left:4px;">DPI 2.0</span>
+        </div>
+        <div id="transition-status-text" style="font-family:'Inter', sans-serif; font-size:0.86rem; color:#64748b; margin-bottom:22px;">
+            Opening your land services workspace...
+        </div>
+        <div style="width:190px; height:4px; background:#e2e8f0; border-radius:4px; overflow:hidden; position:relative;">
+            <div class="gov-loader-bar"></div>
+        </div>
+    </div>
 </body>
 </html>

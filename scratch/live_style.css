@@ -21,14 +21,36 @@ body {
 /* ========== TOP-LEFT VERTICAL ACTION DOCK ========== */
 .landstack-vertical-dock {
     position: fixed;
-    top: 14px;
-    left: 55px;
+    top: 38px;
+    left: 16px;
     z-index: 1001;
     display: flex;
     flex-direction: column;
     gap: 6px;
     pointer-events: auto;
     width: auto;
+}
+
+.is-embedded .landstack-vertical-dock {
+    top: 14px;
+}
+
+/* Leaflet Zoom Control Position Alignment */
+.leaflet-top.leaflet-left {
+    top: 410px;
+    left: 16px;
+}
+
+.is-embedded .leaflet-top.leaflet-left {
+    top: 385px;
+    left: 16px;
+}
+
+.leaflet-control-zoom {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12) !important;
+    overflow: hidden;
 }
 
 .dock-btn {
@@ -131,13 +153,17 @@ body {
 /* ========== CENTERED SEARCH CONTAINER (TOP CENTER) ========== */
 .search-container {
     position: fixed !important;
-    top: 14px !important;
+    top: 38px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     z-index: 1001 !important;
-    width: 460px !important;
-    max-width: calc(100vw - 320px) !important;
+    width: 480px !important;
+    max-width: calc(100vw - 420px) !important;
     pointer-events: auto;
+}
+
+.is-embedded .search-container {
+    top: 14px !important;
 }
 
 /* Search Bar Card */
@@ -1101,6 +1127,144 @@ body:not(.role-officer) .btn-subdivide-popup {
         bottom: 20px;
         left: 10px;
         right: 10px;
+    }
+}
+
+/* ========== FLOATING "YOUR CURRENT LOCATION" GIS INFO CARD ========== */
+.gis-location-card {
+    position: fixed;
+    bottom: 24px;
+    left: 16px;
+    z-index: 1001;
+    width: 310px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid #c8dfd9;
+    border-left: 4px solid #10b981;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(15, 53, 46, 0.18);
+    padding: 12px 14px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    animation: locCardFadeIn 0.25s ease-out;
+    pointer-events: auto;
+}
+
+@keyframes locCardFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.gis-loc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.gis-loc-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: #0f352e;
+}
+
+.gis-loc-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.gis-loc-close:hover {
+    color: #0f172a;
+}
+
+.gis-loc-body {
+    font-size: 0.76rem;
+    color: #475569;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.gis-loc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.gis-loc-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.gis-loc-val {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.btn-gis-nearest {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #174d43 0%, #0f352e 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(23, 77, 67, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-gis-nearest:hover {
+    background: #10b981;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+@media (max-width: 768px) {
+    .landstack-vertical-dock {
+        top: 34px;
+        left: 8px;
+        gap: 4px;
+    }
+    .landstack-vertical-dock .dock-btn span {
+        display: none;
+    }
+    .landstack-vertical-dock .dock-btn {
+        padding: 8px;
+    }
+    .search-container {
+        width: calc(100vw - 80px) !important;
+        max-width: calc(100vw - 80px) !important;
+        left: 55% !important;
+    }
+    .leaflet-top.leaflet-left {
+        top: auto;
+        bottom: 24px;
+        left: 8px;
+    }
+    .gis-location-card {
+        left: 8px;
+        right: 8px;
+        width: auto;
+        bottom: 80px;
     }
 }
 
