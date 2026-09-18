@@ -32,7 +32,7 @@ def test_post(url, desc, payload):
 
 if __name__ == '__main__':
     port = sys.argv[1] if len(sys.argv) > 1 else "8000"
-    base = f"http://localhost:{port}"
+    base = f"http://127.0.0.1:{port}"
     print(f"Testing TAHSILDAR server at {base} ...")
 
     all_passed = True

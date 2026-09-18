@@ -259,7 +259,10 @@ window.logoutOfficer = function() {
     fetch('/api/officer/logout/', { method: 'POST' }).catch(() => {});
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+var _mapModuleInitialized = false;
+function initMapModule() {
+    if (_mapModuleInitialized) return;
+    _mapModuleInitialized = true;
     if (typeof L === 'undefined') {
         console.error("Leaflet library not loaded");
         return;
@@ -659,8 +662,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }).addTo(map);
 
     // ========== 5. LOAD DATA & RENDER DOTS ==========
-    var allParcels = [];
-    var rawGeoJson = null;
+    var bundledGeoJson = (typeof window !== 'undefined' && window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features) ? window.PARCELS_GEOJSON :
+                         (typeof window !== 'undefined' && window.parent && window.parent.PARCELS_GEOJSON && window.parent.PARCELS_GEOJSON.features) ? window.parent.PARCELS_GEOJSON : null;
+    var rawGeoJson = bundledGeoJson;
+    var allParcels = (rawGeoJson && rawGeoJson.features) ? rawGeoJson.features.map(function(f) { return f.properties; }) : [];
 
     function renderParcelDots(filteredIds) {
         parcelDotsLayer.clearLayers();
@@ -928,11 +933,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadParcels(callback) {
         // Resilient immediate initialization from bundled dataset if available
-        if (window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features && (!rawGeoJson || !rawGeoJson.features || rawGeoJson.features.length === 0)) {
-            rawGeoJson = window.PARCELS_GEOJSON;
+        var bundled = (typeof window !== 'undefined' && window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features) ? window.PARCELS_GEOJSON :
+                      (typeof window !== 'undefined' && window.parent && window.parent.PARCELS_GEOJSON && window.parent.PARCELS_GEOJSON.features) ? window.parent.PARCELS_GEOJSON : null;
+        if (bundled && (!rawGeoJson || !rawGeoJson.features || rawGeoJson.features.length === 0)) {
+            rawGeoJson = bundled;
             if (!allParcels || allParcels.length === 0) {
-                allParcels = rawGeoJson.features.map(f => f.properties);
+                allParcels = rawGeoJson.features.map(function(f) { return f.properties; });
             }
+        }
+        if (rawGeoJson && rawGeoJson.features && rawGeoJson.features.length > 0) {
             renderParcelDots();
             renderMasterPlanZoning();
             renderEncumbranceLiens();
@@ -979,8 +988,13 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.warn('API GeoJSON fetch fell back to verified bundled dataset:', error);
-                if (!rawGeoJson && window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features) {
-                    rawGeoJson = window.PARCELS_GEOJSON;
+                var bundled = (typeof window !== 'undefined' && window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features) ? window.PARCELS_GEOJSON :
+                              (typeof window !== 'undefined' && window.parent && window.parent.PARCELS_GEOJSON && window.parent.PARCELS_GEOJSON.features) ? window.parent.PARCELS_GEOJSON : null;
+                if (bundled && (!rawGeoJson || !rawGeoJson.features || rawGeoJson.features.length === 0)) {
+                    rawGeoJson = bundled;
+                    if (!allParcels || allParcels.length === 0) {
+                        allParcels = rawGeoJson.features.map(function(f) { return f.properties; });
+                    }
                     renderParcelDots();
                     renderMasterPlanZoning();
                     renderEncumbranceLiens();
@@ -3337,8 +3351,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.viewMyCitizenProperties = function() {
         if (!rawGeoJson || !rawGeoJson.features) {
-            if (window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features) {
-                rawGeoJson = window.PARCELS_GEOJSON;
+            var bundled = (typeof window !== 'undefined' && window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features) ? window.PARCELS_GEOJSON :
+                          (typeof window !== 'undefined' && window.parent && window.parent.PARCELS_GEOJSON && window.parent.PARCELS_GEOJSON.features) ? window.parent.PARCELS_GEOJSON : null;
+            if (bundled) {
+                rawGeoJson = bundled;
+                if (!allParcels || allParcels.length === 0) {
+                    allParcels = rawGeoJson.features.map(function(f) { return f.properties; });
+                }
             } else {
                 var toastEl = document.getElementById('toast-notification');
                 if (toastEl) {
@@ -5891,10 +5910,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Ensure data availability from memory or bundled source
         if (!rawGeoJson || !rawGeoJson.features || rawGeoJson.features.length === 0) {
-            if (window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features && window.PARCELS_GEOJSON.features.length > 0) {
-                rawGeoJson = window.PARCELS_GEOJSON;
+            var bundled = (typeof window !== 'undefined' && window.PARCELS_GEOJSON && window.PARCELS_GEOJSON.features && window.PARCELS_GEOJSON.features.length > 0) ? window.PARCELS_GEOJSON :
+                          (typeof window !== 'undefined' && window.parent && window.parent.PARCELS_GEOJSON && window.parent.PARCELS_GEOJSON.features && window.parent.PARCELS_GEOJSON.features.length > 0) ? window.parent.PARCELS_GEOJSON : null;
+            if (bundled) {
+                rawGeoJson = bundled;
                 if (!allParcels || allParcels.length === 0) {
-                    allParcels = rawGeoJson.features.map(f => f.properties);
+                    allParcels = rawGeoJson.features.map(function(f) { return f.properties; });
                 }
             } else {
                 var toastEl = document.getElementById('toast-notification');
@@ -6112,4 +6133,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window.printCollectorDossier = function() {
         window.print();
     };
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMapModule);
+} else {
+    initMapModule();
+}
