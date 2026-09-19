@@ -608,7 +608,252 @@ function initMapModule() {
             }
         }
         poly.openPopup();
+
+        // Automatically synchronize and open the Sliding Parcel Intelligence Drawer
+        if (typeof window.openParcelDrawer === 'function') {
+            window.openParcelDrawer(p, feature);
+        }
     };
+
+    // =========================================================================
+    // SLIDING PARCEL INTELLIGENCE DRAWER CONTROLLER
+    // Full-Fidelity Cadastral & Bhu-AI Multi-Tab Inspector
+    // =========================================================================
+    window.activeDrawerParcel = null;
+    window.activeDrawerFeature = null;
+
+    window.openParcelDrawer = function(p, feature) {
+        if (!p) return;
+        window.activeDrawerParcel = p;
+        window.activeDrawerFeature = feature;
+
+        var drawer = document.getElementById('parcel-drawer-panel');
+        if (!drawer) return;
+
+        // Title and Sub-bar
+        var titleEl = document.getElementById('drawer-title');
+        if (titleEl) titleEl.textContent = `Cadastral Parcel: Plot #${p.lot_number || p.parcel_id || p.id} (Sy. No. ${p.survey_number || 'N/A'})`;
+
+        var ulpinEl = document.getElementById('drawer-ulpin-val');
+        var ulpinCode = p.ulpin || `AP-VSP-${(p.zone||'GEN').toUpperCase().slice(0,3)}-${String(p.id||100).padStart(6,'0')}`;
+        if (ulpinEl) ulpinEl.textContent = ulpinCode;
+
+        var rorBadge = document.getElementById('drawer-ror-badge');
+        if (rorBadge) {
+            rorBadge.textContent = p.ror_number ? `RoR 1-B: ${p.ror_number}` : 'RoR Form 1-B Active';
+        }
+
+        var mutBadge = document.getElementById('drawer-mut-badge');
+        if (mutBadge) {
+            var isMut = (p.status || '').toLowerCase().includes('mutation');
+            var isDisp = (p.status || '').toLowerCase().includes('disputed');
+            if (isDisp) {
+                mutBadge.textContent = 'Statutory Notice / Disputed';
+                mutBadge.className = 'badge-status';
+                mutBadge.style.background = '#fef2f2';
+                mutBadge.style.color = '#991b1b';
+                mutBadge.style.border = '1px solid #fecaca';
+            } else if (isMut) {
+                mutBadge.textContent = 'Mutation In Progress';
+                mutBadge.className = 'badge-status';
+                mutBadge.style.background = '#fffbeb';
+                mutBadge.style.color = '#92400e';
+                mutBadge.style.border = '1px solid #fde68a';
+            } else {
+                mutBadge.textContent = 'Clear Title';
+                mutBadge.className = 'badge-status badge-mut-clear';
+                mutBadge.style.background = '#eff6ff';
+                mutBadge.style.color = '#1e40af';
+                mutBadge.style.border = '1px solid #bfdbfe';
+            }
+        }
+
+        // TAB 1: Overview KPIs
+        var syNoEl = document.getElementById('drawer-sy-no');
+        if (syNoEl) syNoEl.textContent = `Sy. No. ${p.survey_number || '148/24'}`;
+
+        var plotNoEl = document.getElementById('drawer-plot-no');
+        if (plotNoEl) plotNoEl.textContent = `Plot #${p.lot_number || p.parcel_id || p.id}`;
+
+        var areaValEl = document.getElementById('drawer-area-val');
+        var sqft = Number(p.area_sqft || 2400);
+        var cents = (sqft / 435.6).toFixed(2);
+        if (areaValEl) areaValEl.textContent = `${sqft.toLocaleString('en-IN')} Sq.Ft (${cents} Cents)`;
+
+        var mktValEl = document.getElementById('drawer-market-val');
+        var mktVal = p.market_value ? Number(p.market_value) : (sqft * 4200);
+        if (mktValEl) mktValEl.textContent = `₹ ${mktVal.toLocaleString('en-IN')}`;
+
+        var villageEl = document.getElementById('drawer-village-name');
+        if (villageEl) villageEl.textContent = `${p.village || 'Rushikonda'}, Ward 04`;
+
+        var landClassEl = document.getElementById('drawer-land-class');
+        if (landClassEl) landClassEl.textContent = p.land_class || 'Ryotwari Dry (Patta)';
+
+        // TAB 2: Ownership
+        var ownerNameEl = document.getElementById('drawer-owner-name');
+        if (ownerNameEl) ownerNameEl.textContent = p.owner_name || 'Sri K. Rama Rao';
+
+        var khataEl = document.getElementById('drawer-khata-no');
+        if (khataEl) khataEl.textContent = p.khata_number || ('KH-' + (p.id || '2422'));
+
+        // TAB 3: Spatial
+        var coordsEl = document.getElementById('drawer-coords-val');
+        var lat = 17.7830;
+        var lng = 83.3810;
+        var coordsCount = 4;
+        var perimeterMeters = 64.2;
+
+        if (feature && feature.geometry && feature.geometry.coordinates && feature.geometry.coordinates[0]) {
+            var ring = feature.geometry.coordinates[0];
+            coordsCount = ring.length;
+            lat = ring.reduce((acc, c) => acc + c[1], 0) / ring.length;
+            lng = ring.reduce((acc, c) => acc + c[0], 0) / ring.length;
+            var perim = 0;
+            for (var i = 0; i < ring.length - 1; i++) {
+                var dlat = (ring[i+1][1] - ring[i][1]) * 111000;
+                var dlng = (ring[i+1][0] - ring[i][0]) * 111000 * Math.cos(lat * Math.PI / 180);
+                perim += Math.hypot(dlat, dlng);
+            }
+            if (perim > 0) perimeterMeters = Math.round(perim * 10) / 10;
+        }
+        if (coordsEl) coordsEl.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+        var vertEl = document.getElementById('drawer-vertices-count');
+        if (vertEl) vertEl.textContent = `${coordsCount} Geodesic Points`;
+
+        var perimEl = document.getElementById('drawer-perimeter-val');
+        if (perimEl) perimEl.textContent = `${perimeterMeters} meters`;
+
+        // TAB 4: Bhu-AI Risk
+        var riskScoreEl = document.getElementById('drawer-risk-score');
+        var riskScore = p.risk_score !== undefined ? Number(p.risk_score) : (p.status === 'disputed' ? 68 : (p.status === 'mutation' ? 34 : 12));
+        if (riskScoreEl) {
+            if (riskScore < 25) {
+                riskScoreEl.textContent = `${riskScore} / 100 • Low Risk Indicator`;
+                riskScoreEl.className = 'badge-risk-low';
+            } else if (riskScore < 50) {
+                riskScoreEl.textContent = `${riskScore} / 100 • Moderate / Review`;
+                riskScoreEl.className = 'badge-status';
+                riskScoreEl.style.background = '#fef3c7';
+                riskScoreEl.style.color = '#92400e';
+            } else {
+                riskScoreEl.textContent = `${riskScore} / 100 • High Risk / Scrutiny`;
+                riskScoreEl.className = 'badge-status';
+                riskScoreEl.style.background = '#fee2e2';
+                riskScoreEl.style.color = '#991b1b';
+            }
+        }
+
+        var crzRiskEl = document.getElementById('drawer-crz-risk');
+        if (crzRiskEl) {
+            if (p.crz_zone === 'crz_1_ndz') {
+                crzRiskEl.innerHTML = '<span style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i> CRZ-I: No Development Zone</span>';
+            } else if (p.crz_zone === 'crz_2_regulated') {
+                crzRiskEl.innerHTML = '<span style="color:#d97706;"><i class="fas fa-info-circle"></i> CRZ-II: Regulated 200-500m</span>';
+            } else {
+                crzRiskEl.innerHTML = '<span class="risk-clean"><i class="fas fa-check"></i> Outside Buffer</span>';
+            }
+        }
+
+        // Show drawer
+        drawer.style.display = 'flex';
+    };
+
+    window.closeParcelDrawer = function() {
+        var drawer = document.getElementById('parcel-drawer-panel');
+        if (drawer) drawer.style.display = 'none';
+    };
+
+    window.switchDrawerTab = function(tabId) {
+        document.querySelectorAll('.drawer-tab-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+        });
+        document.querySelectorAll('.drawer-tab-content').forEach(function(content) {
+            content.classList.toggle('active', content.id === tabId);
+        });
+    };
+
+    window.copyDrawerULPIN = function() {
+        var ulpin = (window.activeDrawerParcel && window.activeDrawerParcel.ulpin) || 
+                    (document.getElementById('drawer-ulpin-val') ? document.getElementById('drawer-ulpin-val').textContent.trim() : '');
+        if (ulpin) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(ulpin).catch(function(){});
+            }
+            var toast = document.getElementById('toast-notification');
+            if (toast) {
+                toast.textContent = `📋 ULPIN copied to clipboard: ${ulpin}`;
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            }
+        }
+    };
+
+    window.copyDrawerCoords = function() {
+        var coords = document.getElementById('drawer-coords-val') ? document.getElementById('drawer-coords-val').textContent.trim() : '';
+        if (coords) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(coords).catch(function(){});
+            }
+            var toast = document.getElementById('toast-notification');
+            if (toast) {
+                toast.textContent = `📍 Geodetic coordinates copied: ${coords}`;
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            }
+        }
+    };
+
+    window.openRoRFromDrawer = function() {
+        if (window.activeDrawerParcel && window.activeDrawerParcel.id) {
+            window.openRoRCertificate(window.activeDrawerParcel.id);
+        }
+    };
+
+    window.openTaxFromDrawer = function() {
+        if (window.activeDrawerParcel && window.activeDrawerParcel.id) {
+            window.openPropertyTaxModal(window.activeDrawerParcel.id);
+        }
+    };
+
+    window.applyMutationFromDrawer = function() {
+        if (window.activeDrawerParcel && window.activeDrawerParcel.id) {
+            window.openCitizenMutationModal(window.activeDrawerParcel.id);
+        }
+    };
+
+    window.runBhuAIFromDrawer = function() {
+        window.switchDrawerTab('tab-risk');
+        var toast = document.getElementById('toast-notification');
+        if (toast) {
+            var u = window.activeDrawerParcel ? window.activeDrawerParcel.ulpin : 'parcel';
+            toast.textContent = `🛡️ Bhu-AI Multi-Source Risk Radar evaluated for ${u}.`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+    };
+
+    window.openSROFromDrawer = function() {
+        if (window.activeDrawerParcel && window.activeDrawerParcel.id) {
+            window.openSRODeedModal(window.activeDrawerParcel.id);
+        }
+    };
+
+    window.subdivideFromDrawer = function() {
+        if (window.activeDrawerParcel && window.activeDrawerParcel.id) {
+            if (typeof window.initiateSubdivisionForParcel === 'function') {
+                window.initiateSubdivisionForParcel(window.activeDrawerParcel.id);
+            }
+        }
+    };
+
+    window.droneIngestFromDrawer = function() {
+        if (typeof window.openDroneDGPSModal === 'function') {
+            window.openDroneDGPSModal();
+        }
+    };
+
 
     // ========== 4. MAP INITIALIZATION ==========
     var map = L.map('map', {

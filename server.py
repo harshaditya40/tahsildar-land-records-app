@@ -124,6 +124,14 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
         elif path == '/map/' or path == '/map':
             return self.serve_file(os.path.join(BASE_DIR, 'map.html'), 'text/html; charset=utf-8')
 
+        elif path in ['/presentation/', '/presentation', '/presentation.html', '/pitch', '/deck']:
+            return self.serve_file(os.path.join(BASE_DIR, 'presentation.html'), 'text/html; charset=utf-8')
+
+        elif path.endswith('.pptx'):
+            pptx_path = os.path.join(BASE_DIR, 'TAHSILDAR_SIH2026_Final_Presentation.pptx')
+            if os.path.exists(pptx_path):
+                return self.serve_file(pptx_path, 'application/vnd.openxmlformats-officedocument.presentationml.presentation')
+
         elif path.startswith('/ror/') or path == '/ror':
             return self.serve_file(os.path.join(BASE_DIR, 'templates', 'ror_passbook.html'), 'text/html; charset=utf-8')
 
@@ -540,6 +548,11 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def serve_static_asset(self, full_path):
+        real_path = os.path.realpath(full_path).lower()
+        real_base = os.path.realpath(BASE_DIR).lower()
+        if not real_path.startswith(real_base):
+            return self.send_error(403, "Access denied: Path outside document root")
+
         if not os.path.exists(full_path):
             return self.send_error(404, f"Asset not found: {os.path.basename(full_path)}")
         
@@ -568,6 +581,8 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(status_code)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(content)))
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.send_header('X-Frame-Options', 'SAMEORIGIN')
         self.send_header('Access-Control-Allow-Origin', os.environ.get('CORS_ORIGIN', '*'))
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
@@ -575,12 +590,19 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(content)
 
     def serve_file(self, file_path, content_type):
+        real_path = os.path.realpath(file_path).lower()
+        real_base = os.path.realpath(BASE_DIR).lower()
+        if not real_path.startswith(real_base):
+            return self.send_error(403, "Access denied: Path outside document root")
+
         if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
                 content = f.read()
             self.send_response(200)
             self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(content)))
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('X-Frame-Options', 'SAMEORIGIN')
             self.send_header('Access-Control-Allow-Origin', os.environ.get('CORS_ORIGIN', '*'))
             self.end_headers()
             self.wfile.write(content)
