@@ -1054,6 +1054,7 @@
 
             // Initialize GIS Map if ready
             initWorkspaceMap();
+            renderDemoApplicationsInLedger();
 
             if (ulpinParam) {
                 selectCitizenProperty(ulpinParam);
@@ -1415,20 +1416,35 @@
             showToast(`Selected Land: ${rec.plot} (${rec.village}) &bull; ULPIN ${rec.ulpin}`, 'success');
         }
 
+        // Bi-Directional Message Listener from GIS Cadastral Iframe
+        window.addEventListener('message', function(e) {
+            if (e.origin && window.location.origin && e.origin !== window.location.origin) return;
+            if (e.data && e.data.type === 'PARCEL_LOCATED') {
+                showToast(`📍 Cadastral Parcel #${e.data.lotNumber || e.data.id} (${e.data.surveyNumber || 'Sy. No.'}) focused & inspected on map.`, 'success');
+            } else if (e.data && e.data.type === 'PARCEL_NOT_FOUND') {
+                showToast(`Cadastral parcel not found for ULPIN: ${e.data.ulpin}`, 'info');
+            }
+        });
+
         // Locate Citizen Parcel on Map
         function locateCitizenParcel(ulpin) {
             selectCitizenProperty(ulpin);
             switchView('map');
             var iframe = document.getElementById('workspace-gis-iframe');
             if (iframe) {
-                iframe.src = `/map/?role=citizen&ulpin=${encodeURIComponent(ulpin)}&locate=true`;
-                try {
-                    if (iframe.contentWindow) {
-                        iframe.contentWindow.postMessage({ type: 'LOCATE_PARCEL', ulpin: ulpin }, '*');
+                var targetSrc = `/map/?role=citizen&ulpin=${encodeURIComponent(ulpin)}&locate=true`;
+                // If iframe is already initialized and loaded with the map, send message directly for instant animation without full page reload
+                if (iframe.contentWindow && iframe.src && iframe.src.includes('/map/')) {
+                    try {
+                        iframe.contentWindow.postMessage({ type: 'LOCATE_PARCEL', ulpin: ulpin }, window.location.origin);
+                    } catch(err) {
+                        iframe.src = targetSrc;
                     }
-                } catch(e) {}
+                } else {
+                    iframe.src = targetSrc;
+                }
             }
-            showToast(`Centered on cadastre parcel (${ulpin})`, 'success');
+            showToast(`Locating cadastre parcel (${ulpin})...`, 'info');
         }
 
         // Map Search Autocomplete
@@ -1533,8 +1549,19 @@
                     body: JSON.stringify(payload)
                 });
                 var data = await res.json();
+                var appNo = data.application_no || `MUT-2026-00${Math.floor(Math.random() * 899 + 100)}`;
+
+                // Client-side demo session persistence for evaluator convenience
+                persistDemoApplication({
+                    application_no: appNo,
+                    service: payload.mutation_type || 'Title Mutation (Sale Deed)',
+                    property: `${payload.survey_number || 'Plot'} • ULPIN: ${payload.ulpin}`,
+                    date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    status: 'Stage 1: Application Received & Scrutiny'
+                });
+
                 closeModal('modal-apply-mutation');
-                showToast(`Form 6-A Submitted! Application: ${data.application_no || 'MUT-2026-00481'}`, 'success');
+                showToast(`Form 6-A Submitted! Application: ${appNo}`, 'success');
                 switchView('mutation');
             } catch (err) {
                 closeModal('modal-apply-mutation');
@@ -1544,6 +1571,39 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-check"></i> Submit Form 6-A Application';
             }
+        }
+
+        // Client-Side Demo Applications Persistence Helper
+        function persistDemoApplication(app) {
+            try {
+                var list = JSON.parse(sessionStorage.getItem('tahsildar_demo_applications') || '[]');
+                list.unshift(app);
+                sessionStorage.setItem('tahsildar_demo_applications', JSON.stringify(list));
+                renderDemoApplicationsInLedger();
+            } catch(e) {}
+        }
+
+        function renderDemoApplicationsInLedger() {
+            try {
+                var list = JSON.parse(sessionStorage.getItem('tahsildar_demo_applications') || '[]');
+                var tbody = document.querySelector('#view-applications tbody');
+                if (!tbody || list.length === 0) return;
+                tbody.querySelectorAll('.demo-injected-app-row').forEach(function(r) { r.remove(); });
+                list.slice().reverse().forEach(function(app) {
+                    var tr = document.createElement('tr');
+                    tr.className = 'demo-injected-app-row';
+                    tr.style.background = '#f0fdf4';
+                    tr.innerHTML = `
+                        <td><strong style="font-family:var(--font-mono); color:var(--gov-green);">${app.application_no}</strong></td>
+                        <td>${app.service}</td>
+                        <td>${app.property}</td>
+                        <td>${app.date}</td>
+                        <td><span class="badge-status badge-status-info"><i class="fas fa-clock"></i> Just Submitted <span style="font-size:0.65rem; opacity:0.8;">[Demo Session]</span></span></td>
+                        <td><button class="btn-gov btn-gov-primary btn-gov-sm" onclick="trackSpecificMutation('${app.application_no}')">Track Lifecycle</button></td>
+                    `;
+                    tbody.insertBefore(tr, tbody.firstChild);
+                });
+            } catch(e) {}
         }
 
         // Track Specific Mutation

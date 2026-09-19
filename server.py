@@ -246,6 +246,9 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
         elif path.startswith('/static/'):
             asset_sub = path[len('/static/'):]
             target_path = os.path.join(BASE_DIR, 'static', asset_sub)
+            real_static_base = os.path.realpath(os.path.join(BASE_DIR, 'static')).lower()
+            if not os.path.realpath(target_path).lower().startswith(real_static_base):
+                return self.send_error(403, "Access denied: Path outside static directory")
             if not os.path.exists(target_path):
                 if 'drone_survey_' in asset_sub and asset_sub.endswith('.geojson'):
                     fallback_survey = os.path.join(BASE_DIR, 'static', 'drone_survey_79Q547SNA8EHU9.geojson')
@@ -257,7 +260,10 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
                         return self.serve_static_asset(fallback_zip)
             return self.serve_static_asset(target_path)
 
-        # Static file fallback via default handler
+        # Static file fallback via default handler - block sensitive files
+        ext = os.path.splitext(path)[1].lower()
+        if ext in ['.py', '.pyc', '.env', '.git', '.sh'] or '/.' in path:
+            return self.send_error(403, "Access denied: Restricted file access")
         return super().do_GET()
 
     def do_POST(self):
@@ -553,10 +559,12 @@ class TahsildarHandler(http.server.SimpleHTTPRequestHandler):
         if not real_path.startswith(real_base):
             return self.send_error(403, "Access denied: Path outside document root")
 
+        ext = os.path.splitext(full_path)[1].lower()
+        if ext in ['.py', '.pyc', '.env', '.git', '.sh'] or '/.' in full_path:
+            return self.send_error(403, "Access denied: Restricted file access")
+
         if not os.path.exists(full_path):
             return self.send_error(404, f"Asset not found: {os.path.basename(full_path)}")
-        
-        ext = os.path.splitext(full_path)[1].lower()
         content_types = {
             '.css': 'text/css; charset=utf-8',
             '.js': 'application/javascript; charset=utf-8',

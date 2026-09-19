@@ -6218,18 +6218,61 @@ function initMapModule() {
         return { success: false, error: 'No cadastral parcel found' };
     };
 
-    // Listen for iframe communication from parent workspace
+    // Listen for iframe communication from parent workspace with origin verification
     window.addEventListener('message', function(e) {
+        if (e.origin && window.location.origin && e.origin !== window.location.origin) {
+            return;
+        }
         if (e.data && e.data.type === 'LOCATE_PARCEL' && e.data.ulpin) {
-            var targetUlpin = e.data.ulpin;
-            if (rawGeoJson && rawGeoJson.features) {
-                var matchedFeat = rawGeoJson.features.find(function(f) {
-                    var u = (f.properties && f.properties.ulpin) ? f.properties.ulpin.toLowerCase() : '';
-                    return u.includes(targetUlpin.toLowerCase());
-                });
-                if (matchedFeat && matchedFeat.properties) {
-                    window.selectAndHighlightParcel(matchedFeat.properties.id, true);
+            var targetUlpin = String(e.data.ulpin).trim();
+            function performLocate() {
+                if (rawGeoJson && rawGeoJson.features && rawGeoJson.features.length > 0) {
+                    var q = targetUlpin.toLowerCase();
+                    var matchedFeat = rawGeoJson.features.find(function(f) {
+                        var p = f.properties || {};
+                        var u = (p.ulpin || '').toLowerCase();
+                        var pid = String(p.parcel_id || '');
+                        var id = String(p.id || '');
+                        var sy = String(p.survey_number || '').toLowerCase();
+                        return u.includes(q) || pid === q || id === q || sy.includes(q);
+                    });
+                    if (matchedFeat && matchedFeat.properties) {
+                        window.selectAndHighlightParcel(matchedFeat.properties.id, true);
+                        try {
+                            if (window.parent && window.parent !== window) {
+                                window.parent.postMessage({
+                                    type: 'PARCEL_LOCATED',
+                                    ulpin: matchedFeat.properties.ulpin,
+                                    surveyNumber: matchedFeat.properties.survey_number,
+                                    lotNumber: matchedFeat.properties.lot_number || matchedFeat.properties.parcel_id,
+                                    id: matchedFeat.properties.id
+                                }, window.location.origin);
+                            }
+                        } catch(err) {}
+                        return true;
+                    }
                 }
+                return false;
+            }
+
+            if (!performLocate()) {
+                var retries = 0;
+                var pollInterval = setInterval(function() {
+                    retries++;
+                    if (performLocate() || retries >= 5) {
+                        clearInterval(pollInterval);
+                        if (retries >= 5) {
+                            try {
+                                if (window.parent && window.parent !== window) {
+                                    window.parent.postMessage({
+                                        type: 'PARCEL_NOT_FOUND',
+                                        ulpin: targetUlpin
+                                    }, window.location.origin);
+                                }
+                            } catch(err) {}
+                        }
+                    }
+                }, 400);
             }
         }
     });

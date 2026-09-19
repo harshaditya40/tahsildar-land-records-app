@@ -1243,6 +1243,12 @@ body:not(.role-officer) .btn-subdivide-popup {
         top: 34px;
         left: 8px;
         gap: 4px;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+    .landstack-vertical-dock::-webkit-scrollbar {
+        display: none;
     }
     .landstack-vertical-dock .dock-btn span {
         display: none;
@@ -2569,5 +2575,30 @@ body:not(.role-officer) .btn-subdivide-popup {
     }
     .drawer-kpi-grid {
         grid-template-columns: 1fr;
+    }
+    .drawer-scroll-body {
+        overflow-x: hidden;
+        padding: 12px;
+    }
+    .collector-analytics-modal-card,
+    .dossier-modal-card,
+    .gis-modal-card {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 90vh !important;
+        margin: 10px auto !important;
+        padding: 12px !important;
+        overflow-y: auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .drawer-header-bar {
+        padding: 10px 12px;
+    }
+    .drawer-tab-btn {
+        min-width: 65px;
+        font-size: 0.70rem;
+        padding: 8px 4px;
     }
 }
